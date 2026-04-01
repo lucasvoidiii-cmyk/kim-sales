@@ -1465,7 +1465,7 @@ let DATA = {
   referrers: {}, sales: {}, priceHistory: {}, minStock: {}
 };
 
-function ref(path) { return db.ref(path); }
+function ref(path) { return db.ref('kim-sales/' + path); }
 
 function watchAll() {
   const keys = ['products','suppliers','imports','customers','referrers','sales','priceHistory','minStock'];
@@ -2414,7 +2414,7 @@ function payAllCommission(refId) {
     }
   });
   if (Object.keys(updates).length > 0) {
-    db.ref().update(updates).then(() => toast(t('msg_comm_paid')));
+    db.ref('kim-sales/').update(updates).then(() => toast(t('msg_comm_paid')));
   }
 }
 
@@ -2502,7 +2502,7 @@ function saveAdjust() {
     remaining -= take;
   }
   if (remaining > 0) { toast(t('msg_no_stock'),'error'); return; }
-  db.ref().update(updates).then(() => { toast(t('msg_saved')); closeModal(); });
+  db.ref('kim-sales/').update(updates).then(() => { toast(t('msg_saved')); closeModal(); });
 }
 
 // =====================================================
@@ -2752,7 +2752,7 @@ function submitSale() {
     createdAt: Date.now(),
   };
 
-  db.ref().update(updates).then(() => {
+  db.ref('kim-sales/').update(updates).then(() => {
     toast(t('msg_sale_done'));
     // Reset form
     document.getElementById('sale-customer').value = '';
