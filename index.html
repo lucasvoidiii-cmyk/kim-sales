@@ -694,6 +694,11 @@ textarea { resize: vertical; min-height: 70px; }
 
       <!-- ===== DASHBOARD ===== -->
       <div class="panel active" id="panel-dashboard">
+        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border2);">
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">VN TECH</div>
+          <div style="font-size:26px;font-weight:700;color:var(--text);letter-spacing:-0.5px;">김판매 <span style="color:var(--primary)">KIM SALES</span></div>
+          <div id="dash-datetime" style="font-size:12px;color:var(--text-muted);margin-top:4px;font-family:'Space Mono',monospace;"></div>
+        </div>
         <div class="stats-grid" id="dash-stats">
           <div class="stat-card green">
             <div class="stat-label" data-i="dash_today_sales">오늘 매출</div>
@@ -1451,6 +1456,20 @@ function onFirebaseReady() {
   initUI();
   navigateTo('dashboard');
   document.getElementById('settings-firebase-info').innerHTML = JSON.stringify(getConfig(), null, 2).replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');
+  // Realtime clock for dashboard
+  function updateClock() {
+    const el = document.getElementById('dash-datetime');
+    if (!el) return;
+    const now = new Date();
+    const days = ['일','월','화','수','목','금','토'];
+    el.textContent = now.getFullYear() + '년 ' +
+      String(now.getMonth()+1).padStart(2,'0') + '월 ' +
+      String(now.getDate()).padStart(2,'0') + '일 (' + days[now.getDay()] + ') ' +
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 60000);
 }
 
 // =====================================================
@@ -1831,7 +1850,7 @@ function saveProduct(id) {
   const key = id || uid();
   ref('products/' + key).set(data).then(() => {
     toast(t('msg_saved')); closeModal();
-  });
+  }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function autoCode() {
@@ -1841,7 +1860,7 @@ function autoCode() {
 
 function deleteProduct(id) {
   if (!confirm2(t('confirm_delete'))) return;
-  ref('products/' + id).remove().then(() => toast(t('msg_deleted')));
+  ref('products/' + id).remove().then(() => toast(t('msg_deleted'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -1915,12 +1934,12 @@ function saveSupplier(id) {
     email: document.getElementById('m-s-email').value.trim(),
     notes: document.getElementById('m-s-notes').value.trim(),
   };
-  ref('suppliers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+  ref('suppliers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function deleteSupplier(id) {
   if (!confirm2(t('confirm_delete'))) return;
-  ref('suppliers/' + id).remove().then(() => toast(t('msg_deleted')));
+  ref('suppliers/' + id).remove().then(() => toast(t('msg_deleted'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -2063,7 +2082,7 @@ function saveImport() {
     totalCostKRW: krw * qty,
     unitCostVND,
   };
-  ref('imports/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+  ref('imports/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function showImportDetail(id) {
@@ -2191,12 +2210,12 @@ function saveCustomer(id) {
     notes: document.getElementById('m-c-notes').value.trim(),
     commissions: existing,
   };
-  ref('customers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+  ref('customers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function deleteCustomer(id) {
   if (!confirm2(t('confirm_delete'))) return;
-  ref('customers/' + id).remove().then(() => toast(t('msg_deleted')));
+  ref('customers/' + id).remove().then(() => toast(t('msg_deleted'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // Commission config for customer×product
@@ -2246,7 +2265,7 @@ function saveCommissionConfig(customerId) {
   });
   ref('customers/' + customerId + '/commissions').set(comms).then(() => {
     toast(t('msg_saved')); closeModal();
-  });
+  }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -2349,11 +2368,11 @@ function saveReferrer(id) {
   if (!name) { toast(t('msg_select_all'),'error'); return; }
   const data = { name, phone: document.getElementById('m-r-phone').value.trim(),
     notes: document.getElementById('m-r-notes').value.trim() };
-  ref('referrers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+  ref('referrers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function payCommission(saleId) {
-  ref('sales/' + saleId + '/commissionPaid').set(true).then(() => toast(t('msg_comm_paid')));
+  ref('sales/' + saleId + '/commissionPaid').set(true).then(() => toast(t('msg_comm_paid'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function payAllCommission(refId) {
@@ -2366,7 +2385,7 @@ function payAllCommission(refId) {
     }
   });
   if (Object.keys(updates).length > 0) {
-    db.ref().update(updates).then(() => toast(t('msg_comm_paid')));
+    db.ref().update(updates).then(() => toast(t('msg_comm_paid'))).catch(e => toast('오류: ' + e.message, 'error'));
   }
 }
 
@@ -2454,7 +2473,7 @@ function saveAdjust() {
     remaining -= take;
   }
   if (remaining > 0) { toast(t('msg_no_stock'),'error'); return; }
-  db.ref().update(updates).then(() => { toast(t('msg_saved')); closeModal(); });
+  db.ref().update(updates).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -2540,7 +2559,7 @@ function savePrice(productId) {
   const date = document.getElementById('m-ph-date').value;
   if (!price || !date) { toast(t('msg_select_all'),'error'); return; }
   const data = { price, date, note: document.getElementById('m-ph-note').value.trim() };
-  ref('priceHistory/' + productId + '/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+  ref('priceHistory/' + productId + '/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); }).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -2774,13 +2793,13 @@ function renderSalesList() {
 }
 
 function markCreditCollected(saleId) {
-  ref('sales/' + saleId + '/creditCollected').set(true).then(() => toast(t('msg_collected')));
+  ref('sales/' + saleId + '/creditCollected').set(true).then(() => toast(t('msg_collected'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 function deleteSale(id) {
   if (!confirm2(t('confirm_delete'))) return;
   // Note: Does not restore inventory (to preserve integrity)
-  ref('sales/' + id).remove().then(() => toast(t('msg_deleted')));
+  ref('sales/' + id).remove().then(() => toast(t('msg_deleted'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
@@ -2893,7 +2912,7 @@ function renderSettings() {
 
 function saveMinStock(pid, val) {
   const n = parseInt(val) || 0;
-  ref('minStock/' + pid).set(n).then(() => toast(t('msg_saved')));
+  ref('minStock/' + pid).set(n).then(() => toast(t('msg_saved'))).catch(e => toast('오류: ' + e.message, 'error'));
 }
 
 // =====================================================
