@@ -1,0 +1,2961 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b1410">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>KIM SALES</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Be+Vietnam+Pro:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+:root {
+  --bg: #0b1410;
+  --surface: #101d17;
+  --card: #162219;
+  --card2: #1c2e22;
+  --border: #253d2c;
+  --border2: #1e3326;
+  --primary: #3ddc84;
+  --primary-hover: #2ecc74;
+  --primary-dim: rgba(61,220,132,0.12);
+  --accent: #f0a500;
+  --accent-dim: rgba(240,165,0,0.12);
+  --danger: #ff5252;
+  --danger-dim: rgba(255,82,82,0.12);
+  --info: #40c9ff;
+  --info-dim: rgba(64,201,255,0.12);
+  --text: #d9ede2;
+  --text-muted: #6b8c77;
+  --text-dim: #3d5a47;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --r: 10px;
+  --r-sm: 6px;
+  --nav-w: 220px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', 'Be Vietnam Pro', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ====== LAYOUT ====== */
+#app { display: flex; height: 100vh; }
+#sidebar {
+  width: var(--nav-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: transform 0.3s;
+  z-index: 100;
+}
+#main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#topbar {
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+#content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ====== SIDEBAR LOGO ====== */
+.logo {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.logo-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 2px;
+}
+.logo-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+/* ====== NAV MENU ====== */
+.nav-section {
+  padding: 8px 10px 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  margin: 2px 8px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  user-select: none;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active {
+  background: var(--primary-dim);
+  color: var(--primary);
+  font-weight: 500;
+}
+.nav-item .icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ====== LANG TOGGLE ====== */
+.lang-toggle {
+  margin: auto 8px 16px;
+  display: flex;
+  background: var(--card);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+.lang-btn {
+  flex: 1;
+  padding: 5px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+.lang-btn.active { background: var(--primary); color: var(--bg); }
+
+/* ====== TOPBAR ====== */
+.page-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+#menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* ====== BUTTONS ====== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: var(--bg); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--card); border-color: var(--primary); color: var(--primary); }
+.btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-accent { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; }
+.btn-icon { padding: 6px 8px; }
+
+/* ====== CARDS ====== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ====== STATS GRID ====== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 16px;
+}
+.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); margin: 4px 0 2px; font-family: 'Space Mono', monospace; }
+.stat-sub { font-size: 11px; color: var(--text-muted); }
+.stat-card.green { border-color: rgba(61,220,132,0.3); }
+.stat-card.green .stat-value { color: var(--primary); }
+.stat-card.yellow { border-color: rgba(240,165,0,0.3); }
+.stat-card.yellow .stat-value { color: var(--accent); }
+.stat-card.red { border-color: rgba(255,82,82,0.3); }
+.stat-card.red .stat-value { color: var(--danger); }
+.stat-card.blue { border-color: rgba(64,201,255,0.3); }
+.stat-card.blue .stat-value { color: var(--info); }
+
+/* ====== TABLE ====== */
+.table-wrap { overflow-x: auto; margin: 0 -4px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid var(--border2);
+  transition: background 0.1s;
+}
+tbody tr:hover { background: var(--card2); }
+tbody td {
+  padding: 10px 12px;
+  color: var(--text);
+  vertical-align: middle;
+}
+tbody td.muted { color: var(--text-muted); }
+tbody td.mono { font-family: 'Space Mono', monospace; font-size: 12px; }
+tbody td.primary { color: var(--primary); font-weight: 600; }
+tbody td.accent { color: var(--accent); }
+tbody td.danger { color: var(--danger); }
+.table-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ====== BADGES ====== */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: var(--primary-dim); color: var(--primary); }
+.badge-yellow { background: var(--accent-dim); color: var(--accent); }
+.badge-red { background: var(--danger-dim); color: var(--danger); }
+.badge-blue { background: var(--info-dim); color: var(--info); }
+.badge-gray { background: rgba(107,140,119,0.15); color: var(--text-muted); }
+
+/* ====== FORMS ====== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+input, select, textarea {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+select option { background: var(--card2); }
+textarea { resize: vertical; min-height: 70px; }
+.form-hint { font-size: 11px; color: var(--text-muted); }
+
+/* ====== MODAL ====== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.modal-title { font-size: 15px; font-weight: 700; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+}
+.modal-body { padding: 20px; }
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border2);
+}
+
+/* ====== ALERT ====== */
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.alert-warn { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(240,165,0,0.3); }
+.alert-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,82,82,0.3); }
+.alert-success { background: var(--primary-dim); color: var(--primary); border: 1px solid rgba(61,220,132,0.3); }
+.alert-info { background: var(--info-dim); color: var(--info); border: 1px solid rgba(64,201,255,0.3); }
+
+/* ====== TOAST ====== */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  animation: slideIn 0.2s ease;
+  max-width: 320px;
+}
+.toast-success { background: var(--primary); color: var(--bg); }
+.toast-error { background: var(--danger); color: #fff; }
+.toast-info { background: var(--info); color: var(--bg); }
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ====== SETUP SCREEN ====== */
+#setup-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 20px;
+}
+.setup-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow);
+}
+.setup-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+.setup-desc { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+
+/* ====== SECTION HEADER ====== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+.section-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.filter-input {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  padding: 7px 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  width: 160px;
+}
+.filter-input:focus { outline: none; border-color: var(--primary); }
+
+/* ====== SALE PREVIEW CARD ====== */
+.sale-calc {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 16px;
+  margin-top: 8px;
+}
+.sale-calc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+  color: var(--text-muted);
+}
+.sale-calc-row.total {
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+  padding-top: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary);
+}
+.sale-calc-row.commission { color: var(--accent); }
+.sale-calc-row.net { color: var(--primary); }
+
+/* ====== PRICE HISTORY ====== */
+.price-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--card2);
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.price-history-item.current { border-left: 3px solid var(--primary); }
+
+/* ====== DIVIDER ====== */
+.divider { border: none; border-top: 1px solid var(--border2); margin: 16px 0; }
+
+/* ====== TABS ====== */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  padding: 4px;
+  border-radius: var(--r-sm);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+.tab-btn.active { background: var(--primary); color: var(--bg); }
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    transform: translateX(-100%);
+  }
+  #sidebar.open { transform: none; box-shadow: var(--shadow); }
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+  }
+  #sidebar-overlay.visible { display: block; }
+  #menu-toggle { display: block; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  #content { padding: 12px; }
+}
+
+/* ====== LOADING ====== */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ====== MISC ====== */
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.flex-gap { display: flex; gap: 8px; align-items: center; }
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.mono { font-family: 'Space Mono', monospace; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" style="display:none;">
+  <div class="setup-box">
+    <div class="setup-logo">KIM SALES</div>
+    <div class="setup-desc" id="setup-desc">Firebase 프로젝트 설정 정보를 입력해주세요.<br>Firebase 콘솔 → 프로젝트 설정 → 앱 → SDK 설정</div>
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-group">
+        <label>API Key</label>
+        <input id="cfg-apiKey" placeholder="AIzaSy...">
+      </div>
+      <div class="form-group">
+        <label>Auth Domain</label>
+        <input id="cfg-authDomain" placeholder="your-project.firebaseapp.com">
+      </div>
+      <div class="form-group">
+        <label>Database URL</label>
+        <input id="cfg-databaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com">
+      </div>
+      <div class="form-group">
+        <label>Project ID</label>
+        <input id="cfg-projectId" placeholder="your-project">
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" onclick="saveConfig()">
+      연결 시작 / Bắt đầu kết nối
+    </button>
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="logo">
+      <div class="logo-title">KIM SALES</div>
+      <div class="logo-sub" id="logo-sub">김 판매·재고관리</div>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding-bottom:8px;">
+      <div class="nav-section" data-i="nav_overview">개요</div>
+      <div class="nav-item active" data-panel="dashboard">
+        <span class="icon">📊</span><span data-i="nav_dashboard">대시보드</span>
+      </div>
+
+      <div class="nav-section" data-i="nav_mgmt">관리</div>
+      <div class="nav-item" data-panel="products">
+        <span class="icon">🌿</span><span data-i="nav_products">상품 (SKU)</span>
+      </div>
+      <div class="nav-item" data-panel="suppliers">
+        <span class="icon">🏭</span><span data-i="nav_suppliers">수입처</span>
+      </div>
+      <div class="nav-item" data-panel="imports">
+        <span class="icon">✈️</span><span data-i="nav_imports">수입·입고</span>
+      </div>
+
+      <div class="nav-section" data-i="nav_sales_mgmt">판매</div>
+      <div class="nav-item" data-panel="sales-reg">
+        <span class="icon">🛒</span><span data-i="nav_sales_reg">판매 등록</span>
+      </div>
+      <div class="nav-item" data-panel="sales-list">
+        <span class="icon">📋</span><span data-i="nav_sales_list">판매 내역</span>
+      </div>
+      <div class="nav-item" data-panel="customers">
+        <span class="icon">🏪</span><span data-i="nav_customers">판매처</span>
+      </div>
+      <div class="nav-item" data-panel="referrers">
+        <span class="icon">🤝</span><span data-i="nav_referrers">소개자</span>
+        <span class="nav-badge" id="badge-commission" style="display:none;">!</span>
+      </div>
+
+      <div class="nav-section" data-i="nav_inventory_sec">재고·분석</div>
+      <div class="nav-item" data-panel="inventory">
+        <span class="icon">📦</span><span data-i="nav_inventory">재고 현황</span>
+        <span class="nav-badge" id="badge-stock" style="display:none;">!</span>
+      </div>
+      <div class="nav-item" data-panel="prices">
+        <span class="icon">💰</span><span data-i="nav_prices">판매가 관리</span>
+      </div>
+      <div class="nav-item" data-panel="analytics">
+        <span class="icon">📈</span><span data-i="nav_analytics">수익 분석</span>
+      </div>
+
+      <div class="nav-section" data-i="nav_system">시스템</div>
+      <div class="nav-item" data-panel="settings">
+        <span class="icon">⚙️</span><span data-i="nav_settings">설정</span>
+      </div>
+    </div>
+
+    <div class="lang-toggle">
+      <div class="lang-btn active" id="lang-ko" onclick="setLang('ko')">한국어</div>
+      <div class="lang-btn" id="lang-vi" onclick="setLang('vi')">Tiếng Việt</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="page-title" id="page-title">대시보드</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div id="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats-grid" id="dash-stats">
+          <div class="stat-card green">
+            <div class="stat-label" data-i="dash_today_sales">오늘 매출</div>
+            <div class="stat-value" id="dash-today">—</div>
+            <div class="stat-sub" data-i="dash_vnd">VND</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label" data-i="dash_month_sales">이번달 매출</div>
+            <div class="stat-value" id="dash-month">—</div>
+            <div class="stat-sub" data-i="dash_vnd">VND</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label" data-i="dash_unpaid_comm">미지급 커미션</div>
+            <div class="stat-value" id="dash-commission">—</div>
+            <div class="stat-sub" data-i="dash_vnd">VND</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label" data-i="dash_credit">외상 미수금</div>
+            <div class="stat-value" id="dash-credit">—</div>
+            <div class="stat-sub" data-i="dash_vnd">VND</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" data-i="dash_expiry_alert">유통기한 임박 (30일 이내)</div>
+            </div>
+            <div id="dash-expiry-list"><div class="table-empty">—</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" data-i="dash_low_stock">재고 부족 상품</div>
+            </div>
+            <div id="dash-lowstock-list"><div class="table-empty">—</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" data-i="dash_recent_sales">최근 판매 내역</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_date">날짜</th>
+                <th data-i="th_customer">판매처</th>
+                <th data-i="th_product">상품</th>
+                <th data-i="th_qty">수량</th>
+                <th data-i="th_amount">금액</th>
+                <th data-i="th_net">실수령</th>
+              </tr></thead>
+              <tbody id="dash-sales-tbody"><tr><td colspan="6" class="table-empty">—</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTS ===== -->
+      <div class="panel" id="panel-products">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_products">상품 (SKU)</div>
+          <div class="section-filters">
+            <input class="filter-input" id="product-search" placeholder="검색..." oninput="renderProducts()">
+            <button class="btn btn-primary btn-sm" onclick="openProductModal()">
+              + <span data-i="btn_add">추가</span>
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_code">코드</th>
+                <th data-i="th_category">카테고리</th>
+                <th data-i="th_product_name">상품명</th>
+                <th data-i="th_supplier">수입처</th>
+                <th data-i="th_weight">용량</th>
+                <th data-i="th_flavor">맛/타입</th>
+                <th data-i="th_cur_price">현재 판매가</th>
+                <th data-i="th_stock">재고</th>
+                <th data-i="th_status">상태</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="products-tbody"><tr><td colspan="10" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SUPPLIERS ===== -->
+      <div class="panel" id="panel-suppliers">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_suppliers">수입처</div>
+          <button class="btn btn-primary btn-sm" onclick="openSupplierModal()">
+            + <span data-i="btn_add">추가</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_company">회사명</th>
+                <th data-i="th_contact">담당자</th>
+                <th data-i="th_phone">연락처</th>
+                <th data-i="th_email">이메일</th>
+                <th data-i="th_products_count">공급 상품</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="suppliers-tbody"><tr><td colspan="6" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== IMPORTS ===== -->
+      <div class="panel" id="panel-imports">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_imports">수입·입고</div>
+          <button class="btn btn-primary btn-sm" onclick="openImportModal()">
+            + <span data-i="btn_register">등록</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_import_date">수입일</th>
+                <th data-i="th_supplier">수입처</th>
+                <th data-i="th_product">상품</th>
+                <th data-i="th_qty">수량</th>
+                <th data-i="th_remaining">잔여</th>
+                <th data-i="th_unit_cost">단위원가</th>
+                <th data-i="th_exchange">환율</th>
+                <th data-i="th_expiry">유통기한</th>
+                <th data-i="th_status">상태</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="imports-tbody"><tr><td colspan="10" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SALES REGISTER ===== -->
+      <div class="panel" id="panel-sales-reg">
+        <div class="section-title" style="margin-bottom:16px;" data-i="nav_sales_reg">판매 등록</div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:14px;" data-i="sale_info">판매 정보</div>
+              <div class="form-grid" style="grid-template-columns:1fr;">
+                <div class="form-group">
+                  <label data-i="th_date">날짜</label>
+                  <input type="date" id="sale-date">
+                </div>
+                <div class="form-group">
+                  <label data-i="th_customer">판매처</label>
+                  <select id="sale-customer" onchange="onSaleCustomerChange()">
+                    <option value="">— 선택 —</option>
+                  </select>
+                </div>
+                <div id="sale-referrer-info" style="display:none;">
+                  <div class="alert alert-info" style="margin:0;font-size:12px;">
+                    <span>🤝</span>
+                    <span id="sale-referrer-text"></span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label data-i="th_product">상품 (SKU)</label>
+                  <select id="sale-product" onchange="onSaleProductChange()">
+                    <option value="">— 선택 —</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label data-i="th_qty">수량</label>
+                  <input type="number" id="sale-qty" min="1" placeholder="0" oninput="calcSale()">
+                </div>
+                <div class="form-group">
+                  <label data-i="th_unit_price">판매가 (VND/개)</label>
+                  <input type="number" id="sale-price" placeholder="0" oninput="calcSale()">
+                </div>
+                <div class="form-group">
+                  <label data-i="th_payment">결제방식</label>
+                  <select id="sale-payment">
+                    <option value="cash" data-i="pay_cash">현금</option>
+                    <option value="transfer" data-i="pay_transfer">이체</option>
+                    <option value="credit" data-i="pay_credit">외상</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label data-i="th_memo">메모</label>
+                  <input id="sale-memo" placeholder="선택사항">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:14px;" data-i="sale_calc">계산 내역</div>
+              <div id="sale-stock-info" class="alert alert-info" style="display:none;margin-bottom:12px;">
+                <span>📦</span><span id="sale-stock-text"></span>
+              </div>
+              <div class="sale-calc">
+                <div class="sale-calc-row">
+                  <span data-i="sale_unit_price">판매가</span>
+                  <span id="calc-price" class="mono">— VND</span>
+                </div>
+                <div class="sale-calc-row">
+                  <span data-i="sale_qty">× 수량</span>
+                  <span id="calc-qty" class="mono">— 개</span>
+                </div>
+                <div class="sale-calc-row">
+                  <span data-i="sale_gross">총 판매금액</span>
+                  <span id="calc-gross" class="mono">— VND</span>
+                </div>
+                <div class="sale-calc-row commission" id="calc-comm-row" style="display:none;">
+                  <span id="calc-comm-label" data-i="sale_commission">커미션</span>
+                  <span id="calc-comm" class="mono">— VND</span>
+                </div>
+                <div class="sale-calc-row total">
+                  <span data-i="sale_net">실수령액</span>
+                  <span id="calc-net" class="mono">— VND</span>
+                </div>
+              </div>
+              <div id="calc-cost-section" style="margin-top:10px;display:none;">
+                <div class="sale-calc">
+                  <div class="sale-calc-row">
+                    <span data-i="sale_unit_cost">단위원가 (FIFO)</span>
+                    <span id="calc-cost" class="mono">— VND</span>
+                  </div>
+                  <div class="sale-calc-row">
+                    <span data-i="sale_margin">예상 마진</span>
+                    <span id="calc-margin" class="mono">— VND</span>
+                  </div>
+                  <div class="sale-calc-row">
+                    <span data-i="sale_margin_rate">마진율</span>
+                    <span id="calc-margin-rate" class="mono">—%</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;" onclick="submitSale()">
+                <span data-i="btn_save_sale">판매 등록</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SALES LIST ===== -->
+      <div class="panel" id="panel-sales-list">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_sales_list">판매 내역</div>
+          <div class="section-filters">
+            <input type="month" class="filter-input" id="sales-filter-month" style="width:140px;" onchange="renderSalesList()">
+            <select class="filter-input" id="sales-filter-customer" style="width:140px;" onchange="renderSalesList()">
+              <option value="">전체 판매처</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_date">날짜</th>
+                <th data-i="th_customer">판매처</th>
+                <th data-i="th_product">상품</th>
+                <th data-i="th_qty">수량</th>
+                <th data-i="th_unit_price">단가</th>
+                <th data-i="th_gross">총액</th>
+                <th data-i="th_commission">커미션</th>
+                <th data-i="th_net">실수령</th>
+                <th data-i="th_payment">결제</th>
+                <th data-i="th_comm_status">커미션 상태</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="sales-tbody"><tr><td colspan="11" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CUSTOMERS ===== -->
+      <div class="panel" id="panel-customers">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_customers">판매처</div>
+          <button class="btn btn-primary btn-sm" onclick="openCustomerModal()">
+            + <span data-i="btn_add">추가</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_customer_name">판매처명</th>
+                <th data-i="th_type">유형</th>
+                <th data-i="th_contact">담당자</th>
+                <th data-i="th_phone">연락처</th>
+                <th data-i="th_referrer">소개자</th>
+                <th data-i="th_payment_term">결제 조건</th>
+                <th data-i="th_total_sales">총 매출</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="customers-tbody"><tr><td colspan="8" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REFERRERS ===== -->
+      <div class="panel" id="panel-referrers">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_referrers">소개자</div>
+          <button class="btn btn-primary btn-sm" onclick="openReferrerModal()">
+            + <span data-i="btn_add">추가</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_name">이름</th>
+                <th data-i="th_phone">연락처</th>
+                <th data-i="th_customers_count">소개 판매처 수</th>
+                <th data-i="th_total_comm">총 커미션</th>
+                <th data-i="th_unpaid_comm">미지급</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="referrers-tbody"><tr><td colspan="6" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-header">
+            <div class="card-title" data-i="comm_unpaid_list">미지급 커미션 내역</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_sale_date">판매일</th>
+                <th data-i="th_referrer">소개자</th>
+                <th data-i="th_customer">판매처</th>
+                <th data-i="th_product">상품</th>
+                <th data-i="th_qty">수량</th>
+                <th data-i="th_comm_unit">단가</th>
+                <th data-i="th_comm_total">커미션</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="unpaid-comm-tbody"><tr><td colspan="8" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== INVENTORY ===== -->
+      <div class="panel" id="panel-inventory">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_inventory">재고 현황</div>
+          <button class="btn btn-secondary btn-sm" onclick="openAdjustModal()">
+            📝 <span data-i="btn_adjust">재고 조정</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_product">상품</th>
+                <th data-i="th_category">카테고리</th>
+                <th data-i="th_total_stock">총 재고</th>
+                <th data-i="th_min_stock">최소 재고</th>
+                <th data-i="th_status">상태</th>
+                <th data-i="th_batches">배치별 현황</th>
+              </tr></thead>
+              <tbody id="inventory-tbody"><tr><td colspan="6" class="table-empty" data-i="empty_data">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PRICES ===== -->
+      <div class="panel" id="panel-prices">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_prices">판매가 관리</div>
+        </div>
+        <div id="prices-list"></div>
+      </div>
+
+      <!-- ===== ANALYTICS ===== -->
+      <div class="panel" id="panel-analytics">
+        <div class="section-header">
+          <div class="section-title" data-i="nav_analytics">수익 분석</div>
+          <div class="section-filters">
+            <input type="month" class="filter-input" id="analytics-month" style="width:140px;" onchange="renderAnalytics()">
+          </div>
+        </div>
+
+        <div class="stats-grid" id="analytics-stats">
+          <div class="stat-card green">
+            <div class="stat-label" data-i="an_gross_sales">총 매출</div>
+            <div class="stat-value" id="an-gross">—</div>
+            <div class="stat-sub">VND</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label" data-i="an_total_cost">총 원가</div>
+            <div class="stat-value" id="an-cost">—</div>
+            <div class="stat-sub">VND</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label" data-i="an_total_commission">총 커미션</div>
+            <div class="stat-value" id="an-commission">—</div>
+            <div class="stat-sub">VND</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label" data-i="an_net_profit">순이익</div>
+            <div class="stat-value" id="an-profit">—</div>
+            <div class="stat-sub">VND</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" data-i="an_by_customer">판매처별 매출</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th data-i="th_customer">판매처</th>
+                  <th data-i="th_sales_cnt">건수</th>
+                  <th data-i="th_gross">총액</th>
+                  <th data-i="th_net">실수령</th>
+                </tr></thead>
+                <tbody id="an-customer-tbody"><tr><td colspan="4" class="table-empty">—</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" data-i="an_by_product">상품별 매출</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th data-i="th_product">상품</th>
+                  <th data-i="th_qty_sold">판매량</th>
+                  <th data-i="th_gross">총액</th>
+                  <th data-i="th_margin_rate">마진율</th>
+                </tr></thead>
+                <tbody id="an-product-tbody"><tr><td colspan="4" class="table-empty">—</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" data-i="an_credit_status">외상 현황</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th data-i="th_customer">판매처</th>
+                <th data-i="th_sale_date">판매일</th>
+                <th data-i="th_amount">금액</th>
+                <th data-i="th_status">상태</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="an-credit-tbody"><tr><td colspan="5" class="table-empty">—</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="panel" id="panel-settings">
+        <div class="section-title" style="margin-bottom:16px;" data-i="nav_settings">설정</div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">Firebase 연결</div>
+          <p class="form-hint" style="margin-bottom:12px;" data-i="settings_firebase_desc">현재 연결된 Firebase 프로젝트 정보입니다.</p>
+          <div id="settings-firebase-info" style="font-size:12px;color:var(--text-muted);font-family:'Space Mono',monospace;line-height:1.8;"></div>
+          <button class="btn btn-danger btn-sm" style="margin-top:12px;" onclick="resetConfig()" data-i="btn_reset_config">설정 초기화</button>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;" data-i="settings_min_stock">최소 재고 기준 설정</div>
+          <div id="min-stock-settings"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- MODALS CONTAINER -->
+<div id="modals"></div>
+
+<script>
+// =====================================================
+// TRANSLATIONS
+// =====================================================
+const T = {
+  ko: {
+    nav_overview:'개요', nav_dashboard:'대시보드', nav_mgmt:'관리',
+    nav_products:'상품 (SKU)', nav_suppliers:'수입처', nav_imports:'수입·입고',
+    nav_sales_mgmt:'판매', nav_sales_reg:'판매 등록', nav_sales_list:'판매 내역',
+    nav_customers:'판매처', nav_referrers:'소개자',
+    nav_inventory_sec:'재고·분석', nav_inventory:'재고 현황',
+    nav_prices:'판매가 관리', nav_analytics:'수익 분석',
+    nav_system:'시스템', nav_settings:'설정',
+    dash_today_sales:'오늘 매출', dash_month_sales:'이번달 매출',
+    dash_unpaid_comm:'미지급 커미션', dash_credit:'외상 미수금',
+    dash_vnd:'VND', dash_expiry_alert:'유통기한 임박 (30일 이내)',
+    dash_low_stock:'재고 부족 상품', dash_recent_sales:'최근 판매 내역',
+    btn_add:'추가', btn_register:'등록', btn_save:'저장', btn_cancel:'취소',
+    btn_delete:'삭제', btn_edit:'수정', btn_save_sale:'판매 등록',
+    btn_adjust:'재고 조정', btn_pay_comm:'커미션 지급',
+    btn_reset_config:'설정 초기화', btn_mark_paid:'수금 처리',
+    th_date:'날짜', th_customer:'판매처', th_product:'상품', th_qty:'수량',
+    th_amount:'금액', th_net:'실수령', th_code:'코드', th_category:'카테고리',
+    th_product_name:'상품명', th_supplier:'수입처', th_weight:'용량',
+    th_flavor:'맛/타입', th_cur_price:'현재 판매가', th_stock:'재고',
+    th_status:'상태', th_company:'회사명', th_contact:'담당자', th_phone:'연락처',
+    th_email:'이메일', th_products_count:'공급 상품', th_import_date:'수입일',
+    th_remaining:'잔여', th_unit_cost:'단위원가', th_exchange:'환율',
+    th_expiry:'유통기한', th_customer_name:'판매처명', th_type:'유형',
+    th_referrer:'소개자', th_payment_term:'결제조건', th_total_sales:'총매출',
+    th_name:'이름', th_customers_count:'소개처 수', th_total_comm:'총커미션',
+    th_unpaid_comm:'미지급', th_total_stock:'총재고', th_min_stock:'최소재고',
+    th_batches:'배치현황', th_unit_price:'단가', th_gross:'총액',
+    th_commission:'커미션', th_payment:'결제', th_comm_status:'커미션상태',
+    th_sale_date:'판매일', th_comm_unit:'단가', th_comm_total:'커미션',
+    th_sales_cnt:'건수', th_qty_sold:'판매량', th_margin_rate:'마진율',
+    th_margin:'마진', th_memo:'메모', th_notes:'비고',
+    an_gross_sales:'총 매출', an_total_cost:'총 원가',
+    an_total_commission:'총 커미션', an_net_profit:'순이익',
+    an_by_customer:'판매처별 매출', an_by_product:'상품별 매출',
+    an_credit_status:'외상 현황',
+    sale_info:'판매 정보', sale_calc:'계산 내역',
+    sale_unit_price:'판매가/개', sale_qty:'× 수량', sale_gross:'총 판매금액',
+    sale_commission:'커미션', sale_net:'실수령액', sale_unit_cost:'단위원가(FIFO)',
+    sale_margin:'예상 마진', sale_margin_rate:'마진율',
+    pay_cash:'현금', pay_transfer:'이체', pay_credit:'외상',
+    status_active:'판매중', status_inactive:'판매중지', status_discontinued:'단종',
+    status_unpaid:'미지급', status_paid:'지급완료',
+    status_pending:'미수금', status_collected:'수금완료',
+    type_large:'대형유통', type_wholesale:'도매', type_introduced:'소개연결',
+    cat_jaban:'김자반', cat_dosirак:'도시락김', cat_gimbap:'김밥김',
+    cat_powder:'김가루', cat_other:'기타',
+    modal_add_product:'상품 등록', modal_edit_product:'상품 수정',
+    modal_add_supplier:'수입처 등록', modal_edit_supplier:'수입처 수정',
+    modal_add_import:'수입 등록', modal_add_customer:'판매처 등록',
+    modal_edit_customer:'판매처 수정', modal_add_referrer:'소개자 등록',
+    modal_price_history:'판매가 이력', modal_add_price:'판매가 변경',
+    modal_adjust:'재고 조정', modal_comm_config:'커미션 설정',
+    empty_data:'데이터 없음',
+    lbl_supplier_name:'회사명', lbl_contact:'담당자', lbl_phone:'연락처',
+    lbl_email:'이메일', lbl_notes:'비고', lbl_category:'카테고리',
+    lbl_product_name:'상품명', lbl_supplier:'수입처', lbl_weight:'용량',
+    lbl_flavor:'맛/타입', lbl_status:'상태',
+    lbl_import_date:'수입일', lbl_qty:'수량(개)', lbl_unit_cost_krw:'공급가(KRW)',
+    lbl_exchange_rate:'환율 (KRW→VND)', lbl_freight:'운임(VND)',
+    lbl_customs:'관세·VAT(VND)', lbl_other_cost:'기타비용(VND)',
+    lbl_expiry:'유통기한', lbl_calculated_cost:'단위원가(자동계산)',
+    lbl_customer_name:'판매처명', lbl_type:'유형', lbl_referrer:'소개자',
+    lbl_payment_term:'결제조건', lbl_referrer_name:'소개자 이름',
+    lbl_new_price:'새 판매가(VND)', lbl_change_date:'변경일',
+    lbl_change_reason:'변경 사유(선택)',
+    lbl_adjust_type:'조정 유형', lbl_adjust_qty:'수량',
+    lbl_adjust_product:'상품', lbl_adjust_reason:'사유',
+    adj_damage:'파손', adj_sample:'샘플', adj_gift:'증정', adj_etc:'기타',
+    lbl_comm_per_unit:'커미션 단가(VND/개)',
+    confirm_delete:'정말 삭제하시겠습니까?',
+    msg_saved:'저장되었습니다.', msg_deleted:'삭제되었습니다.',
+    msg_sale_done:'판매가 등록되었습니다.', msg_comm_paid:'커미션이 지급 처리되었습니다.',
+    msg_collected:'수금 처리되었습니다.',
+    msg_no_stock:'재고가 부족합니다.',
+    msg_select_all:'필수 항목을 모두 입력해주세요.',
+    settings_firebase_desc:'현재 연결된 Firebase 프로젝트 정보입니다.',
+    settings_min_stock:'최소 재고 기준 설정',
+    comm_unpaid_list:'미지급 커미션 내역',
+    logo_sub:'김 판매·재고관리',
+    expiry_days:'일 남음', no_expiry:'무기한',
+    stock_status_ok:'충분', stock_status_low:'부족', stock_status_out:'소진',
+    batch_left:'개 남음',
+  },
+  vi: {
+    nav_overview:'Tổng quan', nav_dashboard:'Bảng điều khiển', nav_mgmt:'Quản lý',
+    nav_products:'Sản phẩm (SKU)', nav_suppliers:'Nhà nhập khẩu', nav_imports:'Nhập·Nhận hàng',
+    nav_sales_mgmt:'Bán hàng', nav_sales_reg:'Đăng ký bán', nav_sales_list:'Lịch sử bán',
+    nav_customers:'Đại lý bán', nav_referrers:'Người giới thiệu',
+    nav_inventory_sec:'Tồn kho·Phân tích', nav_inventory:'Tồn kho',
+    nav_prices:'Quản lý giá bán', nav_analytics:'Phân tích lợi nhuận',
+    nav_system:'Hệ thống', nav_settings:'Cài đặt',
+    dash_today_sales:'Doanh thu hôm nay', dash_month_sales:'Doanh thu tháng này',
+    dash_unpaid_comm:'Hoa hồng chưa trả', dash_credit:'Công nợ chưa thu',
+    dash_vnd:'VND', dash_expiry_alert:'Sắp hết hạn (trong 30 ngày)',
+    dash_low_stock:'Hàng sắp hết', dash_recent_sales:'Giao dịch gần đây',
+    btn_add:'Thêm', btn_register:'Đăng ký', btn_save:'Lưu', btn_cancel:'Hủy',
+    btn_delete:'Xóa', btn_edit:'Sửa', btn_save_sale:'Đăng ký bán',
+    btn_adjust:'Điều chỉnh kho', btn_pay_comm:'Trả hoa hồng',
+    btn_reset_config:'Đặt lại cấu hình', btn_mark_paid:'Thu nợ',
+    th_date:'Ngày', th_customer:'Đại lý', th_product:'Sản phẩm', th_qty:'SL',
+    th_amount:'Số tiền', th_net:'Thực thu', th_code:'Mã', th_category:'Danh mục',
+    th_product_name:'Tên sản phẩm', th_supplier:'Nhà cung cấp', th_weight:'Dung lượng',
+    th_flavor:'Hương vị/Loại', th_cur_price:'Giá bán hiện tại', th_stock:'Tồn kho',
+    th_status:'Trạng thái', th_company:'Tên công ty', th_contact:'Người liên hệ', th_phone:'Điện thoại',
+    th_email:'Email', th_products_count:'Sản phẩm cung cấp', th_import_date:'Ngày nhập',
+    th_remaining:'Còn lại', th_unit_cost:'Giá vốn/cái', th_exchange:'Tỷ giá',
+    th_expiry:'HSD', th_customer_name:'Tên đại lý', th_type:'Loại',
+    th_referrer:'Người giới thiệu', th_payment_term:'Điều kiện TT', th_total_sales:'Tổng DT',
+    th_name:'Tên', th_customers_count:'Số đại lý GT', th_total_comm:'Tổng HH',
+    th_unpaid_comm:'Chưa trả', th_total_stock:'Tổng tồn', th_min_stock:'Tồn tối thiểu',
+    th_batches:'Lô hàng', th_unit_price:'Đơn giá', th_gross:'Tổng tiền',
+    th_commission:'Hoa hồng', th_payment:'Thanh toán', th_comm_status:'TT hoa hồng',
+    th_sale_date:'Ngày bán', th_comm_unit:'Đơn giá', th_comm_total:'Hoa hồng',
+    th_sales_cnt:'Số GD', th_qty_sold:'SL bán', th_margin_rate:'Tỷ lệ lãi',
+    th_margin:'Lãi gộp', th_memo:'Ghi chú', th_notes:'Ghi chú',
+    an_gross_sales:'Tổng doanh thu', an_total_cost:'Tổng giá vốn',
+    an_total_commission:'Tổng hoa hồng', an_net_profit:'Lợi nhuận ròng',
+    an_by_customer:'Doanh thu theo đại lý', an_by_product:'Doanh thu theo sản phẩm',
+    an_credit_status:'Công nợ',
+    sale_info:'Thông tin bán hàng', sale_calc:'Chi tiết tính toán',
+    sale_unit_price:'Giá bán/cái', sale_qty:'× Số lượng', sale_gross:'Tổng doanh thu',
+    sale_commission:'Hoa hồng', sale_net:'Thực thu', sale_unit_cost:'Giá vốn(FIFO)',
+    sale_margin:'Lãi gộp dự kiến', sale_margin_rate:'Tỷ lệ lãi',
+    pay_cash:'Tiền mặt', pay_transfer:'Chuyển khoản', pay_credit:'Công nợ',
+    status_active:'Đang bán', status_inactive:'Tạm dừng', status_discontinued:'Ngừng SP',
+    status_unpaid:'Chưa trả', status_paid:'Đã trả',
+    status_pending:'Chưa thu', status_collected:'Đã thu',
+    type_large:'Siêu thị lớn', type_wholesale:'Bán buôn', type_introduced:'Được giới thiệu',
+    cat_jaban:'Kim Jaban', cat_dosirак:'Kim hộp cơm', cat_gimbap:'Kim cuộn',
+    cat_powder:'Bột rong biển', cat_other:'Khác',
+    modal_add_product:'Đăng ký sản phẩm', modal_edit_product:'Sửa sản phẩm',
+    modal_add_supplier:'Đăng ký nhà cung cấp', modal_edit_supplier:'Sửa nhà cung cấp',
+    modal_add_import:'Đăng ký nhập hàng', modal_add_customer:'Đăng ký đại lý',
+    modal_edit_customer:'Sửa đại lý', modal_add_referrer:'Đăng ký người GT',
+    modal_price_history:'Lịch sử giá bán', modal_add_price:'Thay đổi giá bán',
+    modal_adjust:'Điều chỉnh kho', modal_comm_config:'Cài đặt hoa hồng',
+    empty_data:'Không có dữ liệu',
+    lbl_supplier_name:'Tên công ty', lbl_contact:'Người liên hệ', lbl_phone:'Điện thoại',
+    lbl_email:'Email', lbl_notes:'Ghi chú', lbl_category:'Danh mục',
+    lbl_product_name:'Tên sản phẩm', lbl_supplier:'Nhà cung cấp', lbl_weight:'Dung lượng',
+    lbl_flavor:'Hương vị/Loại', lbl_status:'Trạng thái',
+    lbl_import_date:'Ngày nhập', lbl_qty:'Số lượng(cái)', lbl_unit_cost_krw:'Giá cung cấp(KRW)',
+    lbl_exchange_rate:'Tỷ giá (KRW→VND)', lbl_freight:'Vận chuyển(VND)',
+    lbl_customs:'Thuế nhập khẩu·VAT(VND)', lbl_other_cost:'Chi phí khác(VND)',
+    lbl_expiry:'Hạn sử dụng', lbl_calculated_cost:'Giá vốn/cái (tự tính)',
+    lbl_customer_name:'Tên đại lý', lbl_type:'Loại', lbl_referrer:'Người giới thiệu',
+    lbl_payment_term:'Điều kiện thanh toán', lbl_referrer_name:'Tên người GT',
+    lbl_new_price:'Giá bán mới(VND)', lbl_change_date:'Ngày thay đổi',
+    lbl_change_reason:'Lý do thay đổi(tùy chọn)',
+    lbl_adjust_type:'Loại điều chỉnh', lbl_adjust_qty:'Số lượng',
+    lbl_adjust_product:'Sản phẩm', lbl_adjust_reason:'Lý do',
+    adj_damage:'Hư hỏng', adj_sample:'Mẫu thử', adj_gift:'Tặng', adj_etc:'Khác',
+    lbl_comm_per_unit:'Hoa hồng/cái(VND)',
+    confirm_delete:'Bạn có chắc chắn muốn xóa?',
+    msg_saved:'Đã lưu thành công.', msg_deleted:'Đã xóa.',
+    msg_sale_done:'Đã đăng ký bán hàng.', msg_comm_paid:'Đã xử lý thanh toán hoa hồng.',
+    msg_collected:'Đã thu công nợ.',
+    msg_no_stock:'Không đủ hàng trong kho.',
+    msg_select_all:'Vui lòng điền đầy đủ thông tin bắt buộc.',
+    settings_firebase_desc:'Thông tin Firebase đang kết nối.',
+    settings_min_stock:'Cài đặt mức tồn kho tối thiểu',
+    comm_unpaid_list:'Hoa hồng chưa thanh toán',
+    logo_sub:'Quản lý bán·tồn kho rong biển',
+    expiry_days:' ngày còn lại', no_expiry:'Không giới hạn',
+    stock_status_ok:'Đủ hàng', stock_status_low:'Sắp hết', stock_status_out:'Hết hàng',
+    batch_left:' cái còn',
+  }
+};
+
+let lang = localStorage.getItem('kim_sales_lang') || 'ko';
+function t(k) { return (T[lang]||T.ko)[k] || k; }
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('kim_sales_lang', l);
+  document.getElementById('lang-ko').classList.toggle('active', l==='ko');
+  document.getElementById('lang-vi').classList.toggle('active', l==='vi');
+  document.getElementById('logo-sub').textContent = t('logo_sub');
+  document.querySelectorAll('[data-i]').forEach(el => {
+    const k = el.getAttribute('data-i');
+    el.textContent = t(k);
+  });
+  refreshCurrentPanel();
+}
+
+// =====================================================
+// FIREBASE CONFIG
+// =====================================================
+let db = null;
+let firebaseApp = null;
+
+function getConfig() {
+  const s = localStorage.getItem('kim_sales_fb_config');
+  return s ? JSON.parse(s) : null;
+}
+
+function saveConfig() {
+  const cfg = {
+    apiKey: document.getElementById('cfg-apiKey').value.trim(),
+    authDomain: document.getElementById('cfg-authDomain').value.trim(),
+    databaseURL: document.getElementById('cfg-databaseURL').value.trim(),
+    projectId: document.getElementById('cfg-projectId').value.trim(),
+  };
+  if (!cfg.apiKey || !cfg.databaseURL) {
+    alert('API Key와 Database URL은 필수입니다.');
+    return;
+  }
+  localStorage.setItem('kim_sales_fb_config', JSON.stringify(cfg));
+  initFirebase(cfg);
+}
+
+function resetConfig() {
+  if (!confirm(t('confirm_delete'))) return;
+  localStorage.removeItem('kim_sales_fb_config');
+  location.reload();
+}
+
+function initFirebase(cfg) {
+  try {
+    if (firebaseApp) firebase.app().delete();
+  } catch(e) {}
+  try {
+    firebaseApp = firebase.initializeApp(cfg);
+    db = firebase.database();
+    document.getElementById('setup-screen').style.display = 'none';
+    onFirebaseReady();
+  } catch(e) {
+    alert('Firebase 연결 오류: ' + e.message);
+  }
+}
+
+// =====================================================
+// DATA STORE (in-memory cache)
+// =====================================================
+let DATA = {
+  products: {}, suppliers: {}, imports: {}, customers: {},
+  referrers: {}, sales: {}, priceHistory: {}, minStock: {}
+};
+
+function ref(path) { return db.ref(path); }
+
+function watchAll() {
+  const keys = ['products','suppliers','imports','customers','referrers','sales','priceHistory','minStock'];
+  keys.forEach(k => {
+    ref(k).on('value', snap => {
+      DATA[k] = snap.val() || {};
+      onDataChange(k);
+    });
+  });
+}
+
+function onDataChange(key) {
+  const cur = getCurrentPanel();
+  updateBadges();
+  if (cur === 'dashboard') renderDashboard();
+  else if (cur === 'products' && key === 'products') renderProducts();
+  else if (cur === 'suppliers' && key === 'suppliers') renderSuppliers();
+  else if (cur === 'imports' && (key==='imports'||key==='products'||key==='suppliers')) renderImports();
+  else if (cur === 'customers' && (key==='customers'||key==='referrers'||key==='sales')) renderCustomers();
+  else if (cur === 'referrers' && (key==='referrers'||key==='customers'||key==='sales')) renderReferrers();
+  else if (cur === 'inventory' && (key==='imports'||key==='products')) renderInventory();
+  else if (cur === 'sales-reg') populateSaleSelects();
+  else if (cur === 'sales-list' && key==='sales') renderSalesList();
+  else if (cur === 'analytics' && (key==='sales'||key==='imports')) renderAnalytics();
+  else if (cur === 'prices' && (key==='products'||key==='priceHistory')) renderPrices();
+  else if (cur === 'settings') renderSettings();
+}
+
+function onFirebaseReady() {
+  watchAll();
+  initUI();
+  navigateTo('dashboard');
+  document.getElementById('settings-firebase-info').innerHTML = JSON.stringify(getConfig(), null, 2).replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');
+}
+
+// =====================================================
+// HELPERS
+// =====================================================
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '—';
+  return Number(n).toLocaleString();
+}
+function fmtVND(n) {
+  if (n == null || isNaN(n)) return '—';
+  return Number(n).toLocaleString() + ' ₫';
+}
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+function nowMonth() {
+  return new Date().toISOString().slice(0,7);
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = (new Date(dateStr) - new Date()) / 86400000;
+  return Math.ceil(d);
+}
+
+function getProductName(id) {
+  const p = DATA.products[id];
+  if (!p) return id;
+  return `${p.name}${p.weight?' ('+p.weight+')':''}${p.flavor?' ['+p.flavor+']':''}`;
+}
+function getSupplierName(id) {
+  return DATA.suppliers[id]?.name || id;
+}
+function getCustomerName(id) {
+  return DATA.customers[id]?.name || id;
+}
+function getReferrerName(id) {
+  return DATA.referrers[id]?.name || id;
+}
+
+function getProductCode(id) {
+  return DATA.products[id]?.code || '';
+}
+
+// FIFO: get available batches for a product (oldest first)
+function getFIFOBatches(productId) {
+  const batches = Object.entries(DATA.imports)
+    .filter(([,b]) => b.productId === productId && (b.remaining||0) > 0)
+    .sort(([,a],[,b]) => a.importDate.localeCompare(b.importDate));
+  return batches;
+}
+
+function getTotalStock(productId) {
+  return Object.values(DATA.imports)
+    .filter(b => b.productId === productId)
+    .reduce((s,b) => s + (b.remaining||0), 0);
+}
+
+// Calculate FIFO cost for given qty
+function getFIFOCost(productId, qty) {
+  const batches = getFIFOBatches(productId);
+  let remaining = qty;
+  let totalCost = 0;
+  for (const [,b] of batches) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, b.remaining);
+    totalCost += take * (b.unitCostVND || 0);
+    remaining -= take;
+  }
+  if (remaining > 0) return null; // insufficient stock
+  return qty > 0 ? totalCost / qty : 0;
+}
+
+// Current price for a product
+function getCurrentPrice(productId) {
+  const hist = DATA.priceHistory[productId];
+  if (!hist) return null;
+  const entries = Object.values(hist).sort((a,b) => b.date.localeCompare(a.date));
+  return entries[0]?.price || null;
+}
+
+// Commission per unit for customer×product
+function getCommission(customerId, productId) {
+  const c = DATA.customers[customerId];
+  if (!c || !c.commissions) return 0;
+  return c.commissions[productId] || 0;
+}
+
+// =====================================================
+// UI INIT & NAVIGATION
+// =====================================================
+let currentPanel = 'dashboard';
+
+function getCurrentPanel() { return currentPanel; }
+
+function initUI() {
+  // Set today's date on sale form
+  document.getElementById('sale-date').value = today();
+  document.getElementById('sales-filter-month').value = nowMonth();
+  document.getElementById('analytics-month').value = nowMonth();
+  setLang(lang);
+
+  // Nav clicks
+  document.querySelectorAll('.nav-item[data-panel]').forEach(item => {
+    item.addEventListener('click', () => {
+      navigateTo(item.dataset.panel);
+      closeSidebar();
+    });
+  });
+}
+
+function navigateTo(panel) {
+  currentPanel = panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.panel === panel);
+  });
+  // Update page title
+  const navItem = document.querySelector(`.nav-item[data-panel="${panel}"] span[data-i]`);
+  document.getElementById('page-title').textContent = navItem ? t(navItem.dataset.i) : '';
+  refreshCurrentPanel();
+}
+
+function refreshCurrentPanel() {
+  const p = currentPanel;
+  if (p === 'dashboard') renderDashboard();
+  else if (p === 'products') renderProducts();
+  else if (p === 'suppliers') renderSuppliers();
+  else if (p === 'imports') renderImports();
+  else if (p === 'customers') renderCustomers();
+  else if (p === 'referrers') renderReferrers();
+  else if (p === 'inventory') renderInventory();
+  else if (p === 'sales-reg') { populateSaleSelects(); }
+  else if (p === 'sales-list') renderSalesList();
+  else if (p === 'analytics') renderAnalytics();
+  else if (p === 'prices') renderPrices();
+  else if (p === 'settings') renderSettings();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+}
+
+function updateBadges() {
+  // Commission badge
+  const unpaidComm = Object.values(DATA.sales).filter(s => s.commissionPerUnit > 0 && !s.commissionPaid).length;
+  const badge = document.getElementById('badge-commission');
+  badge.style.display = unpaidComm > 0 ? '' : 'none';
+  badge.textContent = unpaidComm;
+
+  // Stock badge
+  const lowProducts = Object.keys(DATA.products).filter(pid => {
+    const stock = getTotalStock(pid);
+    const min = DATA.minStock[pid] || 0;
+    return min > 0 && stock <= min;
+  });
+  const sb = document.getElementById('badge-stock');
+  sb.style.display = lowProducts.length > 0 ? '' : 'none';
+  sb.textContent = lowProducts.length;
+}
+
+// =====================================================
+// TOAST
+// =====================================================
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// =====================================================
+// MODAL HELPER
+// =====================================================
+function openModal(html, onClose) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">${html}</div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); onClose && onClose(); } });
+  document.getElementById('modals').appendChild(overlay);
+  return overlay;
+}
+function closeModal() {
+  document.querySelector('.modal-overlay')?.remove();
+}
+function confirm2(msg) { return confirm(msg); }
+
+// =====================================================
+// DASHBOARD
+// =====================================================
+function renderDashboard() {
+  const todayStr = today();
+  const monthStr = todayStr.slice(0,7);
+  let todaySales=0, monthSales=0, unpaidComm=0, creditBalance=0;
+
+  Object.values(DATA.sales).forEach(s => {
+    const net = (s.unitPrice - (s.commissionPerUnit||0)) * s.qty;
+    if (s.date === todayStr) todaySales += s.unitPrice * s.qty;
+    if (s.date?.startsWith(monthStr)) monthSales += s.unitPrice * s.qty;
+    if (s.commissionPerUnit > 0 && !s.commissionPaid) unpaidComm += s.commissionPerUnit * s.qty;
+    if (s.paymentMethod === 'credit' && !s.creditCollected) creditBalance += s.unitPrice * s.qty;
+  });
+
+  document.getElementById('dash-today').textContent = fmtNum(todaySales);
+  document.getElementById('dash-month').textContent = fmtNum(monthSales);
+  document.getElementById('dash-commission').textContent = fmtNum(unpaidComm);
+  document.getElementById('dash-credit').textContent = fmtNum(creditBalance);
+
+  // Expiry
+  const expiryEl = document.getElementById('dash-expiry-list');
+  const expItems = [];
+  Object.values(DATA.imports).forEach(b => {
+    if (!b.expiry || b.remaining <= 0) return;
+    const d = daysUntil(b.expiry);
+    if (d !== null && d <= 30) {
+      expItems.push({ name: getProductName(b.productId), days: d, qty: b.remaining });
+    }
+  });
+  expItems.sort((a,b) => a.days - b.days);
+  expiryEl.innerHTML = expItems.length === 0 ? '<div class="table-empty">—</div>' :
+    expItems.map(i => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;">
+      <span>${i.name}</span>
+      <span class="${i.days<=7?'danger':'accent'}" style="color:${i.days<=7?'var(--danger)':'var(--accent)'}">${i.days}${t('expiry_days')} · ${fmtNum(i.qty)}개</span>
+    </div>`).join('');
+
+  // Low stock
+  const lsEl = document.getElementById('dash-lowstock-list');
+  const lsItems = [];
+  Object.entries(DATA.products).forEach(([pid, p]) => {
+    const stock = getTotalStock(pid);
+    const min = DATA.minStock[pid] || 0;
+    if (min > 0 && stock <= min) lsItems.push({ name: p.name, stock, min });
+  });
+  lsEl.innerHTML = lsItems.length === 0 ? '<div class="table-empty">—</div>' :
+    lsItems.map(i => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;">
+      <span>${i.name}</span>
+      <span style="color:var(--danger)">${fmtNum(i.stock)} / ${fmtNum(i.min)}</span>
+    </div>`).join('');
+
+  // Recent sales
+  const recentSales = Object.values(DATA.sales)
+    .sort((a,b) => b.date?.localeCompare(a.date||'')).slice(0,10);
+  const tbody = document.getElementById('dash-sales-tbody');
+  tbody.innerHTML = recentSales.length === 0
+    ? `<tr><td colspan="6" class="table-empty">${t('empty_data')}</td></tr>`
+    : recentSales.map(s => {
+      const gross = s.unitPrice * s.qty;
+      const net = (s.unitPrice - (s.commissionPerUnit||0)) * s.qty;
+      return `<tr>
+        <td class="muted">${s.date||''}</td>
+        <td>${getCustomerName(s.customerId)}</td>
+        <td>${getProductName(s.productId)}</td>
+        <td class="mono">${fmtNum(s.qty)}</td>
+        <td class="mono">${fmtVND(gross)}</td>
+        <td class="primary mono">${fmtVND(net)}</td>
+      </tr>`;
+    }).join('');
+}
+
+// =====================================================
+// PRODUCTS
+// =====================================================
+function renderProducts() {
+  const search = document.getElementById('product-search')?.value.toLowerCase() || '';
+  const tbody = document.getElementById('products-tbody');
+  const items = Object.entries(DATA.products)
+    .filter(([,p]) => !search || p.name?.toLowerCase().includes(search) ||
+      p.code?.toLowerCase().includes(search) || p.category?.toLowerCase().includes(search));
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(([id, p]) => {
+    const stock = getTotalStock(id);
+    const price = getCurrentPrice(id);
+    const statusBadge = p.status==='inactive' ? `<span class="badge badge-gray">${t('status_inactive')}</span>`
+      : p.status==='discontinued' ? `<span class="badge badge-red">${t('status_discontinued')}</span>`
+      : `<span class="badge badge-green">${t('status_active')}</span>`;
+    return `<tr>
+      <td class="mono muted">${p.code||'—'}</td>
+      <td><span class="tag">${t('cat_'+p.category)||p.category||'—'}</span></td>
+      <td><strong>${p.name||'—'}</strong></td>
+      <td class="muted">${getSupplierName(p.supplierId)}</td>
+      <td class="muted">${p.weight||'—'}</td>
+      <td class="muted">${p.flavor||'—'}</td>
+      <td class="primary mono">${price ? fmtVND(price) : '—'}</td>
+      <td class="mono">${fmtNum(stock)}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <div class="flex-gap">
+          <button class="btn btn-secondary btn-xs" onclick="openProductModal('${id}')">${t('btn_edit')}</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteProduct('${id}')">${t('btn_delete')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openProductModal(id) {
+  const p = id ? DATA.products[id] : {};
+  const title = id ? t('modal_edit_product') : t('modal_add_product');
+  const suppOptions = Object.entries(DATA.suppliers).map(([sid,s]) =>
+    `<option value="${sid}" ${p.supplierId===sid?'selected':''}>${s.name}</option>`).join('');
+  const cats = ['jaban','dosirак','gimbap','powder','other'];
+  const catOptions = cats.map(c =>
+    `<option value="${c}" ${p.category===c?'selected':''}>${t('cat_'+c)}</option>`).join('');
+  const statuses = ['active','inactive','discontinued'];
+  const statOptions = statuses.map(s =>
+    `<option value="${s}" ${(p.status||'active')===s?'selected':''}>${t('status_'+s)}</option>`).join('');
+
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${title}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>${t('lbl_category')}</label>
+        <select id="m-p-cat">${catOptions}</select>
+      </div>
+      <div class="form-group">
+        <label>${t('lbl_product_name')}</label>
+        <input id="m-p-name" value="${p.name||''}" placeholder="김자반 1">
+      </div>
+      <div class="form-group">
+        <label>${t('lbl_supplier')}</label>
+        <select id="m-p-sup"><option value="">—</option>${suppOptions}</select>
+      </div>
+      <div class="form-group">
+        <label>${t('lbl_weight')}</label>
+        <input id="m-p-weight" value="${p.weight||''}" placeholder="50g">
+      </div>
+      <div class="form-group">
+        <label>${t('lbl_flavor')}</label>
+        <input id="m-p-flavor" value="${p.flavor||''}" placeholder="오리지널">
+      </div>
+      <div class="form-group">
+        <label>${t('lbl_status')}</label>
+        <select id="m-p-status">${statOptions}</select>
+      </div>
+      <div class="form-group">
+        <label>코드 (자동생성 가능)</label>
+        <input id="m-p-code" value="${p.code||''}" placeholder="예: KJ-001">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveProduct('${id||''}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveProduct(id) {
+  const name = document.getElementById('m-p-name').value.trim();
+  if (!name) { toast(t('msg_select_all'), 'error'); return; }
+  const data = {
+    category: document.getElementById('m-p-cat').value,
+    name,
+    supplierId: document.getElementById('m-p-sup').value,
+    weight: document.getElementById('m-p-weight').value.trim(),
+    flavor: document.getElementById('m-p-flavor').value.trim(),
+    status: document.getElementById('m-p-status').value,
+    code: document.getElementById('m-p-code').value.trim() || autoCode(),
+  };
+  const key = id || uid();
+  ref('products/' + key).set(data).then(() => {
+    toast(t('msg_saved')); closeModal();
+  });
+}
+
+function autoCode() {
+  const n = Object.keys(DATA.products).length + 1;
+  return 'KIM-' + String(n).padStart(3,'0');
+}
+
+function deleteProduct(id) {
+  if (!confirm2(t('confirm_delete'))) return;
+  ref('products/' + id).remove().then(() => toast(t('msg_deleted')));
+}
+
+// =====================================================
+// SUPPLIERS
+// =====================================================
+function renderSuppliers() {
+  const tbody = document.getElementById('suppliers-tbody');
+  const items = Object.entries(DATA.suppliers);
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(([id, s]) => {
+    const count = Object.values(DATA.products).filter(p => p.supplierId === id).length;
+    return `<tr>
+      <td><strong>${s.name||'—'}</strong></td>
+      <td class="muted">${s.contact||'—'}</td>
+      <td class="muted">${s.phone||'—'}</td>
+      <td class="muted">${s.email||'—'}</td>
+      <td class="mono">${count}개</td>
+      <td>
+        <div class="flex-gap">
+          <button class="btn btn-secondary btn-xs" onclick="openSupplierModal('${id}')">${t('btn_edit')}</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteSupplier('${id}')">${t('btn_delete')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openSupplierModal(id) {
+  const s = id ? DATA.suppliers[id] : {};
+  const title = id ? t('modal_edit_supplier') : t('modal_add_supplier');
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${title}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group full"><label>${t('lbl_supplier_name')}</label>
+        <input id="m-s-name" value="${s.name||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_contact')}</label>
+        <input id="m-s-contact" value="${s.contact||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_phone')}</label>
+        <input id="m-s-phone" value="${s.phone||''}">
+      </div>
+      <div class="form-group full"><label>${t('lbl_email')}</label>
+        <input id="m-s-email" value="${s.email||''}">
+      </div>
+      <div class="form-group full"><label>${t('lbl_notes')}</label>
+        <textarea id="m-s-notes">${s.notes||''}</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveSupplier('${id||''}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveSupplier(id) {
+  const name = document.getElementById('m-s-name').value.trim();
+  if (!name) { toast(t('msg_select_all'),'error'); return; }
+  const data = {
+    name, contact: document.getElementById('m-s-contact').value.trim(),
+    phone: document.getElementById('m-s-phone').value.trim(),
+    email: document.getElementById('m-s-email').value.trim(),
+    notes: document.getElementById('m-s-notes').value.trim(),
+  };
+  ref('suppliers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+function deleteSupplier(id) {
+  if (!confirm2(t('confirm_delete'))) return;
+  ref('suppliers/' + id).remove().then(() => toast(t('msg_deleted')));
+}
+
+// =====================================================
+// IMPORTS
+// =====================================================
+function renderImports() {
+  const tbody = document.getElementById('imports-tbody');
+  const items = Object.entries(DATA.imports).sort(([,a],[,b]) => b.importDate?.localeCompare(a.importDate||''));
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(([id, b]) => {
+    const days = daysUntil(b.expiry);
+    const expiryStr = b.expiry
+      ? (days <= 0 ? `<span class="badge badge-red">만료</span>`
+        : days <= 30 ? `<span class="badge badge-yellow">${b.expiry}(${days}일)</span>`
+        : `<span class="badge badge-green">${b.expiry}</span>`)
+      : `<span class="muted">${t('no_expiry')}</span>`;
+    const remaining = b.remaining ?? b.qty;
+    const pct = b.qty > 0 ? Math.round(remaining/b.qty*100) : 0;
+    const statusBadge = remaining <= 0 ? `<span class="badge badge-red">${t('stock_status_out')}</span>`
+      : remaining < b.qty ? `<span class="badge badge-yellow">출고중</span>`
+      : `<span class="badge badge-green">전량 보유</span>`;
+    return `<tr>
+      <td class="muted">${b.importDate||'—'}</td>
+      <td>${getSupplierName(b.supplierId)}</td>
+      <td>${getProductName(b.productId)}</td>
+      <td class="mono">${fmtNum(b.qty)}</td>
+      <td class="mono">${fmtNum(remaining)} <span style="color:var(--text-muted);font-size:11px;">(${pct}%)</span></td>
+      <td class="primary mono">${fmtVND(b.unitCostVND)}</td>
+      <td class="muted mono">${fmtNum(b.exchangeRate)}</td>
+      <td>${expiryStr}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="showImportDetail('${id}')">상세</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openImportModal() {
+  const suppOptions = Object.entries(DATA.suppliers).map(([id,s]) => `<option value="${id}">${s.name}</option>`).join('');
+  const prodOptions = Object.entries(DATA.products)
+    .filter(([,p]) => p.status !== 'discontinued')
+    .map(([id,p]) => `<option value="${id}">${getProductName(id)}</option>`).join('');
+
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${t('modal_add_import')}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group"><label>${t('lbl_import_date')}</label>
+        <input type="date" id="m-i-date" value="${today()}">
+      </div>
+      <div class="form-group"><label>${t('lbl_supplier')}</label>
+        <select id="m-i-sup"><option value="">— 선택 —</option>${suppOptions}</select>
+      </div>
+      <div class="form-group full"><label>${t('th_product')}</label>
+        <select id="m-i-prod"><option value="">— 선택 —</option>${prodOptions}</select>
+      </div>
+      <div class="form-group"><label>${t('lbl_qty')}</label>
+        <input type="number" id="m-i-qty" min="1" placeholder="0" oninput="calcImportCost()">
+      </div>
+      <div class="form-group"><label>${t('lbl_expiry')}</label>
+        <input type="date" id="m-i-expiry">
+      </div>
+      <div class="form-group"><label>${t('lbl_unit_cost_krw')} (KRW/개)</label>
+        <input type="number" id="m-i-krw" placeholder="0" oninput="calcImportCost()">
+      </div>
+      <div class="form-group"><label>${t('lbl_exchange_rate')}</label>
+        <input type="number" id="m-i-exrate" placeholder="예: 197" oninput="calcImportCost()">
+      </div>
+      <div class="form-group"><label>${t('lbl_freight')} (전체)</label>
+        <input type="number" id="m-i-freight" placeholder="0" oninput="calcImportCost()">
+      </div>
+      <div class="form-group"><label>${t('lbl_customs')} (전체)</label>
+        <input type="number" id="m-i-customs" placeholder="0" oninput="calcImportCost()">
+      </div>
+      <div class="form-group"><label>${t('lbl_other_cost')} (전체)</label>
+        <input type="number" id="m-i-other" placeholder="0" oninput="calcImportCost()">
+      </div>
+    </div>
+    <div class="sale-calc" style="margin-top:12px;" id="import-calc">
+      <div class="sale-calc-row"><span>한국 공급가 (VND환산)</span><span id="ic-krw-vnd" class="mono">—</span></div>
+      <div class="sale-calc-row"><span>운임+관세+기타</span><span id="ic-extra" class="mono">—</span></div>
+      <div class="sale-calc-row total"><span>${t('lbl_calculated_cost')}</span><span id="ic-unit" class="mono">—</span></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveImport()">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function calcImportCost() {
+  const qty = parseFloat(document.getElementById('m-i-qty')?.value) || 0;
+  const krw = parseFloat(document.getElementById('m-i-krw')?.value) || 0;
+  const exrate = parseFloat(document.getElementById('m-i-exrate')?.value) || 0;
+  const freight = parseFloat(document.getElementById('m-i-freight')?.value) || 0;
+  const customs = parseFloat(document.getElementById('m-i-customs')?.value) || 0;
+  const other = parseFloat(document.getElementById('m-i-other')?.value) || 0;
+  const krwVND = krw * exrate * qty;
+  const extra = freight + customs + other;
+  const total = qty > 0 ? (krwVND + extra) / qty : 0;
+  const el1 = document.getElementById('ic-krw-vnd');
+  const el2 = document.getElementById('ic-extra');
+  const el3 = document.getElementById('ic-unit');
+  if (el1) el1.textContent = fmtVND(krwVND);
+  if (el2) el2.textContent = fmtVND(extra);
+  if (el3) el3.textContent = fmtVND(Math.round(total));
+}
+
+function saveImport() {
+  const date = document.getElementById('m-i-date').value;
+  const suppId = document.getElementById('m-i-sup').value;
+  const prodId = document.getElementById('m-i-prod').value;
+  const qty = parseInt(document.getElementById('m-i-qty').value);
+  const krw = parseFloat(document.getElementById('m-i-krw').value) || 0;
+  const exrate = parseFloat(document.getElementById('m-i-exrate').value) || 0;
+  const freight = parseFloat(document.getElementById('m-i-freight').value) || 0;
+  const customs = parseFloat(document.getElementById('m-i-customs').value) || 0;
+  const other = parseFloat(document.getElementById('m-i-other').value) || 0;
+  const expiry = document.getElementById('m-i-expiry').value;
+
+  if (!date || !prodId || !qty) { toast(t('msg_select_all'),'error'); return; }
+
+  const krwVND = krw * exrate * qty;
+  const extra = freight + customs + other;
+  const unitCostVND = Math.round((krwVND + extra) / qty);
+
+  const data = {
+    importDate: date, supplierId: suppId, productId: prodId,
+    qty, remaining: qty, expiry: expiry||null,
+    unitCostKRW: krw, exchangeRate: exrate,
+    freight, customs, otherCost: other,
+    totalCostKRW: krw * qty,
+    unitCostVND,
+  };
+  ref('imports/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+function showImportDetail(id) {
+  const b = DATA.imports[id];
+  if (!b) return;
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">수입 배치 상세</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div><span class="form-hint">수입처</span><br><strong>${getSupplierName(b.supplierId)}</strong></div>
+      <div><span class="form-hint">상품</span><br><strong>${getProductName(b.productId)}</strong></div>
+      <div><span class="form-hint">수입일</span><br>${b.importDate}</div>
+      <div><span class="form-hint">유통기한</span><br>${b.expiry||t('no_expiry')}</div>
+      <div><span class="form-hint">입고 수량</span><br><strong>${fmtNum(b.qty)}개</strong></div>
+      <div><span class="form-hint">잔여 수량</span><br><strong>${fmtNum(b.remaining??b.qty)}개</strong></div>
+      <div><span class="form-hint">공급가(KRW/개)</span><br>${fmtNum(b.unitCostKRW)}</div>
+      <div><span class="form-hint">환율</span><br>${fmtNum(b.exchangeRate)}</div>
+      <div><span class="form-hint">운임</span><br>${fmtVND(b.freight)}</div>
+      <div><span class="form-hint">관세·VAT</span><br>${fmtVND(b.customs)}</div>
+      <div><span class="form-hint">기타</span><br>${fmtVND(b.otherCost)}</div>
+      <div><span class="form-hint">단위원가(VND/개)</span><br><strong style="color:var(--primary)">${fmtVND(b.unitCostVND)}</strong></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+  </div>`;
+  openModal(html);
+}
+
+// =====================================================
+// CUSTOMERS
+// =====================================================
+function renderCustomers() {
+  const tbody = document.getElementById('customers-tbody');
+  const items = Object.entries(DATA.customers);
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(([id, c]) => {
+    const salesTotal = Object.values(DATA.sales)
+      .filter(s => s.customerId === id)
+      .reduce((sum, s) => sum + s.unitPrice * s.qty, 0);
+    const typeBadge = c.type==='large' ? `<span class="badge badge-blue">${t('type_large')}</span>`
+      : c.type==='wholesale' ? `<span class="badge badge-gray">${t('type_wholesale')}</span>`
+      : `<span class="badge badge-yellow">${t('type_introduced')}</span>`;
+    return `<tr>
+      <td><strong>${c.name||'—'}</strong></td>
+      <td>${typeBadge}</td>
+      <td class="muted">${c.contact||'—'}</td>
+      <td class="muted">${c.phone||'—'}</td>
+      <td class="muted">${c.referrerId ? getReferrerName(c.referrerId) : '—'}</td>
+      <td class="muted">${c.paymentTerm||'—'}</td>
+      <td class="primary mono">${fmtVND(salesTotal)}</td>
+      <td>
+        <div class="flex-gap">
+          <button class="btn btn-secondary btn-xs" onclick="openCustomerModal('${id}')">${t('btn_edit')}</button>
+          <button class="btn btn-accent btn-xs" onclick="openCommissionConfig('${id}')">커미션</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteCustomer('${id}')">${t('btn_delete')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCustomerModal(id) {
+  const c = id ? DATA.customers[id] : {};
+  const title = id ? t('modal_edit_customer') : t('modal_add_customer');
+  const refOptions = Object.entries(DATA.referrers).map(([rid,r]) =>
+    `<option value="${rid}" ${c.referrerId===rid?'selected':''}>${r.name}</option>`).join('');
+  const types = ['large','wholesale','introduced'];
+  const typeOptions = types.map(tp =>
+    `<option value="${tp}" ${(c.type||'wholesale')===tp?'selected':''}>${t('type_'+tp)}</option>`).join('');
+
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${title}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group full"><label>${t('lbl_customer_name')}</label>
+        <input id="m-c-name" value="${c.name||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_type')}</label>
+        <select id="m-c-type">${typeOptions}</select>
+      </div>
+      <div class="form-group"><label>${t('lbl_contact')}</label>
+        <input id="m-c-contact" value="${c.contact||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_phone')}</label>
+        <input id="m-c-phone" value="${c.phone||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_referrer')}</label>
+        <select id="m-c-ref"><option value="">— 없음 —</option>${refOptions}</select>
+      </div>
+      <div class="form-group"><label>${t('lbl_payment_term')}</label>
+        <input id="m-c-payment" value="${c.paymentTerm||''}" placeholder="예: 현금/30일">
+      </div>
+      <div class="form-group full"><label>${t('lbl_notes')}</label>
+        <textarea id="m-c-notes">${c.notes||''}</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveCustomer('${id||''}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveCustomer(id) {
+  const name = document.getElementById('m-c-name').value.trim();
+  if (!name) { toast(t('msg_select_all'),'error'); return; }
+  const existing = id ? (DATA.customers[id]?.commissions || {}) : {};
+  const data = {
+    name, type: document.getElementById('m-c-type').value,
+    contact: document.getElementById('m-c-contact').value.trim(),
+    phone: document.getElementById('m-c-phone').value.trim(),
+    referrerId: document.getElementById('m-c-ref').value||null,
+    paymentTerm: document.getElementById('m-c-payment').value.trim(),
+    notes: document.getElementById('m-c-notes').value.trim(),
+    commissions: existing,
+  };
+  ref('customers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+function deleteCustomer(id) {
+  if (!confirm2(t('confirm_delete'))) return;
+  ref('customers/' + id).remove().then(() => toast(t('msg_deleted')));
+}
+
+// Commission config for customer×product
+function openCommissionConfig(customerId) {
+  const c = DATA.customers[customerId];
+  const comms = c?.commissions || {};
+  const prods = Object.entries(DATA.products).filter(([,p]) => p.status !== 'discontinued');
+
+  const rows = prods.map(([pid,p]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);">
+      <span style="font-size:13px;">${getProductName(pid)}</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input type="number" id="comm-${pid}" value="${comms[pid]||0}" min="0"
+          style="width:120px;text-align:right;" placeholder="0">
+        <span style="font-size:11px;color:var(--text-muted)">VND/개</span>
+      </div>
+    </div>`).join('');
+
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${t('modal_comm_config')} — ${c?.name}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-info" style="margin-bottom:12px;font-size:12px;">
+      <span>💡</span>
+      <span>커미션이 없는 경우 0을 입력하세요. 소개자가 없는 판매처는 커미션이 발생하지 않습니다.</span>
+    </div>
+    <div>${rows||'<div class="table-empty">등록된 상품이 없습니다.</div>'}</div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveCommissionConfig('${customerId}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveCommissionConfig(customerId) {
+  const prods = Object.keys(DATA.products);
+  const comms = {};
+  prods.forEach(pid => {
+    const el = document.getElementById('comm-' + pid);
+    if (el) {
+      const v = parseFloat(el.value) || 0;
+      if (v > 0) comms[pid] = v;
+    }
+  });
+  ref('customers/' + customerId + '/commissions').set(comms).then(() => {
+    toast(t('msg_saved')); closeModal();
+  });
+}
+
+// =====================================================
+// REFERRERS
+// =====================================================
+function renderReferrers() {
+  const tbody = document.getElementById('referrers-tbody');
+  const items = Object.entries(DATA.referrers);
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">${t('empty_data')}</td></tr>`;
+  } else {
+    tbody.innerHTML = items.map(([id, r]) => {
+      const custCount = Object.values(DATA.customers).filter(c => c.referrerId === id).length;
+      const { total, unpaid } = getReferrerCommStats(id);
+      return `<tr>
+        <td><strong>${r.name||'—'}</strong></td>
+        <td class="muted">${r.phone||'—'}</td>
+        <td class="mono">${custCount}곳</td>
+        <td class="primary mono">${fmtVND(total)}</td>
+        <td class="${unpaid>0?'accent':'muted'} mono">${fmtVND(unpaid)}</td>
+        <td>
+          <div class="flex-gap">
+            <button class="btn btn-secondary btn-xs" onclick="openReferrerModal('${id}')">${t('btn_edit')}</button>
+            ${unpaid>0?`<button class="btn btn-accent btn-xs" onclick="payAllCommission('${id}')">${t('btn_pay_comm')}</button>`:''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Unpaid commission list
+  const unpaidTbody = document.getElementById('unpaid-comm-tbody');
+  const unpaidSales = Object.entries(DATA.sales)
+    .filter(([,s]) => s.commissionPerUnit > 0 && !s.commissionPaid)
+    .sort(([,a],[,b]) => b.date?.localeCompare(a.date||''));
+
+  if (unpaidSales.length === 0) {
+    unpaidTbody.innerHTML = `<tr><td colspan="8" class="table-empty">${t('empty_data')}</td></tr>`;
+  } else {
+    unpaidTbody.innerHTML = unpaidSales.map(([sid, s]) => {
+      const cust = DATA.customers[s.customerId];
+      const refName = cust?.referrerId ? getReferrerName(cust.referrerId) : '—';
+      return `<tr>
+        <td class="muted">${s.date||''}</td>
+        <td>${refName}</td>
+        <td>${getCustomerName(s.customerId)}</td>
+        <td>${getProductName(s.productId)}</td>
+        <td class="mono">${fmtNum(s.qty)}</td>
+        <td class="accent mono">${fmtVND(s.commissionPerUnit)}</td>
+        <td class="accent mono">${fmtVND(s.commissionPerUnit * s.qty)}</td>
+        <td>
+          <button class="btn btn-accent btn-xs" onclick="payCommission('${sid}')">${t('btn_pay_comm')}</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function getReferrerCommStats(refId) {
+  let total = 0, unpaid = 0;
+  Object.values(DATA.sales).forEach(s => {
+    const cust = DATA.customers[s.customerId];
+    if (cust?.referrerId !== refId) return;
+    const comm = s.commissionPerUnit * s.qty;
+    total += comm;
+    if (!s.commissionPaid) unpaid += comm;
+  });
+  return { total, unpaid };
+}
+
+function openReferrerModal(id) {
+  const r = id ? DATA.referrers[id] : {};
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${id ? '소개자 수정' : t('modal_add_referrer')}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-group"><label>${t('lbl_referrer_name')}</label>
+        <input id="m-r-name" value="${r.name||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_phone')}</label>
+        <input id="m-r-phone" value="${r.phone||''}">
+      </div>
+      <div class="form-group"><label>${t('lbl_notes')}</label>
+        <textarea id="m-r-notes">${r.notes||''}</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveReferrer('${id||''}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveReferrer(id) {
+  const name = document.getElementById('m-r-name').value.trim();
+  if (!name) { toast(t('msg_select_all'),'error'); return; }
+  const data = { name, phone: document.getElementById('m-r-phone').value.trim(),
+    notes: document.getElementById('m-r-notes').value.trim() };
+  ref('referrers/' + (id||uid())).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+function payCommission(saleId) {
+  ref('sales/' + saleId + '/commissionPaid').set(true).then(() => toast(t('msg_comm_paid')));
+}
+
+function payAllCommission(refId) {
+  if (!confirm2(t('btn_pay_comm') + '?')) return;
+  const updates = {};
+  Object.entries(DATA.sales).forEach(([sid, s]) => {
+    const cust = DATA.customers[s.customerId];
+    if (cust?.referrerId === refId && s.commissionPerUnit > 0 && !s.commissionPaid) {
+      updates['sales/' + sid + '/commissionPaid'] = true;
+    }
+  });
+  if (Object.keys(updates).length > 0) {
+    db.ref().update(updates).then(() => toast(t('msg_comm_paid')));
+  }
+}
+
+// =====================================================
+// INVENTORY
+// =====================================================
+function renderInventory() {
+  const tbody = document.getElementById('inventory-tbody');
+  const products = Object.entries(DATA.products);
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = products.map(([pid, p]) => {
+    const stock = getTotalStock(pid);
+    const minS = DATA.minStock[pid] || 0;
+    const statusBadge = stock <= 0 ? `<span class="badge badge-red">${t('stock_status_out')}</span>`
+      : (minS > 0 && stock <= minS) ? `<span class="badge badge-yellow">${t('stock_status_low')}</span>`
+      : `<span class="badge badge-green">${t('stock_status_ok')}</span>`;
+    const batches = Object.values(DATA.imports)
+      .filter(b => b.productId === pid && (b.remaining||0) > 0)
+      .sort((a,b) => a.importDate?.localeCompare(b.importDate||''));
+    const batchInfo = batches.map(b => {
+      const days = daysUntil(b.expiry);
+      const dColor = days !== null && days <= 30 ? (days<=7?'var(--danger)':'var(--accent)') : 'var(--text-muted)';
+      return `<span class="tag" style="margin:1px;">${b.importDate} · ${fmtNum(b.remaining)}${t('batch_left')}${b.expiry?` · <span style="color:${dColor}">${days}일</span>`:''}·원가:${fmtNum(b.unitCostVND)}₫</span>`;
+    }).join('');
+    return `<tr>
+      <td><strong>${p.name||'—'}</strong><br><span style="font-size:11px;color:var(--text-muted)">${p.code||''}</span></td>
+      <td><span class="tag">${t('cat_'+p.category)||p.category}</span></td>
+      <td class="mono primary">${fmtNum(stock)}</td>
+      <td class="mono muted">${minS > 0 ? fmtNum(minS) : '—'}</td>
+      <td>${statusBadge}</td>
+      <td style="max-width:300px;white-space:normal;">${batchInfo||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openAdjustModal() {
+  const prodOptions = Object.entries(DATA.products)
+    .filter(([,p]) => p.status !== 'discontinued')
+    .map(([id,p]) => `<option value="${id}">${getProductName(id)}</option>`).join('');
+  const adjTypes = ['damage','sample','gift','etc'];
+  const adjOptions = adjTypes.map(a => `<option value="${a}">${t('adj_'+a)}</option>`).join('');
+
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${t('modal_adjust')}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-group"><label>${t('lbl_adjust_product')}</label>
+        <select id="m-adj-prod"><option value="">— 선택 —</option>${prodOptions}</select>
+      </div>
+      <div class="form-group"><label>${t('lbl_adjust_type')}</label>
+        <select id="m-adj-type">${adjOptions}</select>
+      </div>
+      <div class="form-group"><label>${t('lbl_adjust_qty')}</label>
+        <input type="number" id="m-adj-qty" min="1" placeholder="0">
+      </div>
+      <div class="form-group"><label>${t('lbl_adjust_reason')}</label>
+        <input id="m-adj-reason" placeholder="사유 입력">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="saveAdjust()">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function saveAdjust() {
+  const prodId = document.getElementById('m-adj-prod').value;
+  const qty = parseInt(document.getElementById('m-adj-qty').value);
+  if (!prodId || !qty) { toast(t('msg_select_all'),'error'); return; }
+  let remaining = qty;
+  const batches = getFIFOBatches(prodId);
+  const updates = {};
+  for (const [bid, b] of batches) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, b.remaining);
+    updates['imports/' + bid + '/remaining'] = b.remaining - take;
+    remaining -= take;
+  }
+  if (remaining > 0) { toast(t('msg_no_stock'),'error'); return; }
+  db.ref().update(updates).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+// =====================================================
+// PRICES
+// =====================================================
+function renderPrices() {
+  const container = document.getElementById('prices-list');
+  const products = Object.entries(DATA.products);
+  if (products.length === 0) {
+    container.innerHTML = `<div class="table-empty" style="padding:40px;">${t('empty_data')}</div>`;
+    return;
+  }
+  container.innerHTML = products.map(([pid, p]) => {
+    const hist = DATA.priceHistory[pid] || {};
+    const entries = Object.entries(hist).sort(([,a],[,b]) => b.date.localeCompare(a.date));
+    const current = entries[0];
+    const histHTML = entries.map(([hid, h], i) => `
+      <div class="price-history-item ${i===0?'current':''}">
+        <div>
+          <strong class="mono ${i===0?'primary':''}">${fmtVND(h.price)}</strong>
+          ${h.note ? `<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">${h.note}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--text-muted)">${h.date}</span>
+          ${i===0?'<span class="badge badge-green">현재</span>':''}
+        </div>
+      </div>`).join('');
+
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <div style="font-weight:700;">${getProductName(pid)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${t('cat_'+p.category)||p.category}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px;font-weight:700;color:var(--primary);font-family:'Space Mono',monospace;">
+            ${current ? fmtVND(current[1].price) : '—'}
+          </span>
+          <button class="btn btn-primary btn-sm" onclick="openPriceModal('${pid}')">가격 변경</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">변경 이력</div>
+      ${histHTML || `<div class="table-empty" style="padding:12px;">${t('empty_data')}</div>`}
+    </div>`;
+  }).join('');
+}
+
+function openPriceModal(productId) {
+  const p = DATA.products[productId];
+  const cur = getCurrentPrice(productId);
+  const html = `
+  <div class="modal-header">
+    <div class="modal-title">${t('modal_add_price')}</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-info" style="margin-bottom:12px;font-size:12px;">
+      <span>📦</span>
+      <span>${getProductName(productId)}</span>
+    </div>
+    ${cur ? `<div style="margin-bottom:12px;font-size:13px;">현재가: <strong style="color:var(--primary)">${fmtVND(cur)}</strong></div>` : ''}
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="form-group"><label>${t('lbl_new_price')}</label>
+        <input type="number" id="m-ph-price" placeholder="0">
+      </div>
+      <div class="form-group"><label>${t('lbl_change_date')}</label>
+        <input type="date" id="m-ph-date" value="${today()}">
+      </div>
+      <div class="form-group"><label>${t('lbl_change_reason')}</label>
+        <input id="m-ph-note" placeholder="예: 환율 상승, 시장가 조정 등">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal()">${t('btn_cancel')}</button>
+    <button class="btn btn-primary" onclick="savePrice('${productId}')">${t('btn_save')}</button>
+  </div>`;
+  openModal(html);
+}
+
+function savePrice(productId) {
+  const price = parseFloat(document.getElementById('m-ph-price').value);
+  const date = document.getElementById('m-ph-date').value;
+  if (!price || !date) { toast(t('msg_select_all'),'error'); return; }
+  const data = { price, date, note: document.getElementById('m-ph-note').value.trim() };
+  ref('priceHistory/' + productId + '/' + uid()).set(data).then(() => { toast(t('msg_saved')); closeModal(); });
+}
+
+// =====================================================
+// SALES REGISTER
+// =====================================================
+function populateSaleSelects() {
+  const custSel = document.getElementById('sale-customer');
+  const prodSel = document.getElementById('sale-product');
+  if (!custSel || !prodSel) return;
+  const curCust = custSel.value;
+  const curProd = prodSel.value;
+
+  custSel.innerHTML = `<option value="">— ${t('th_customer')} —</option>` +
+    Object.entries(DATA.customers).map(([id,c]) =>
+      `<option value="${id}" ${curCust===id?'selected':''}>${c.name}</option>`).join('');
+  prodSel.innerHTML = `<option value="">— ${t('th_product')} —</option>` +
+    Object.entries(DATA.products).filter(([,p])=>p.status==='active')
+      .map(([id]) => `<option value="${id}" ${curProd===id?'selected':''}>${getProductName(id)}</option>`).join('');
+
+  // Repopulate filter selects
+  const filterCust = document.getElementById('sales-filter-customer');
+  if (filterCust) {
+    const fc = filterCust.value;
+    filterCust.innerHTML = `<option value="">전체 판매처</option>` +
+      Object.entries(DATA.customers).map(([id,c]) =>
+        `<option value="${id}" ${fc===id?'selected':''}>${c.name}</option>`).join('');
+  }
+
+  if (curCust) onSaleCustomerChange();
+  if (curProd) onSaleProductChange();
+}
+
+function onSaleCustomerChange() {
+  const custId = document.getElementById('sale-customer').value;
+  const refInfo = document.getElementById('sale-referrer-info');
+  const refText = document.getElementById('sale-referrer-text');
+  if (!custId) { refInfo.style.display='none'; calcSale(); return; }
+  const cust = DATA.customers[custId];
+  if (cust?.referrerId) {
+    const ref = DATA.referrers[cust.referrerId];
+    refInfo.style.display = '';
+    refText.textContent = `소개자: ${ref?.name||'—'} (${ref?.phone||''})`;
+  } else {
+    refInfo.style.display = 'none';
+  }
+  calcSale();
+}
+
+function onSaleProductChange() {
+  const prodId = document.getElementById('sale-product').value;
+  if (!prodId) { calcSale(); return; }
+
+  // Auto-fill current price
+  const price = getCurrentPrice(prodId);
+  if (price) document.getElementById('sale-price').value = price;
+
+  // Show stock info
+  const stock = getTotalStock(prodId);
+  const stockEl = document.getElementById('sale-stock-info');
+  const stockText = document.getElementById('sale-stock-text');
+  stockEl.style.display = '';
+  stockEl.className = `alert ${stock<=0?'alert-danger':stock<=10?'alert-warn':'alert-info'}`;
+  stockText.textContent = `현재 재고: ${fmtNum(stock)}개`;
+
+  calcSale();
+}
+
+function calcSale() {
+  const custId = document.getElementById('sale-customer').value;
+  const prodId = document.getElementById('sale-product').value;
+  const qty = parseInt(document.getElementById('sale-qty').value) || 0;
+  const price = parseFloat(document.getElementById('sale-price').value) || 0;
+
+  document.getElementById('calc-price').textContent = fmtVND(price);
+  document.getElementById('calc-qty').textContent = fmtNum(qty) + '개';
+  document.getElementById('calc-gross').textContent = fmtVND(price * qty);
+
+  const commPerUnit = custId && prodId ? getCommission(custId, prodId) : 0;
+  const commRow = document.getElementById('calc-comm-row');
+  const commLabel = document.getElementById('calc-comm-label');
+  const commEl = document.getElementById('calc-comm');
+
+  if (commPerUnit > 0) {
+    commRow.style.display = '';
+    const cust = DATA.customers[custId];
+    const refName = cust?.referrerId ? getReferrerName(cust.referrerId) : '';
+    commLabel.textContent = `커미션 (${fmtNum(commPerUnit)}₫/개${refName?' · '+refName:''})`;
+    commEl.textContent = '− ' + fmtVND(commPerUnit * qty);
+  } else {
+    commRow.style.display = 'none';
+  }
+
+  const net = (price - commPerUnit) * qty;
+  document.getElementById('calc-net').textContent = fmtVND(net);
+
+  // Cost/margin
+  if (prodId && qty > 0) {
+    const costPerUnit = getFIFOCost(prodId, qty);
+    const costSec = document.getElementById('calc-cost-section');
+    if (costPerUnit !== null) {
+      costSec.style.display = '';
+      const totalCost = costPerUnit * qty;
+      const margin = net - totalCost;
+      const marginRate = net > 0 ? (margin / net * 100).toFixed(1) : 0;
+      document.getElementById('calc-cost').textContent = fmtVND(Math.round(costPerUnit));
+      document.getElementById('calc-margin').textContent = fmtVND(Math.round(margin));
+      document.getElementById('calc-margin-rate').textContent = marginRate + '%';
+    } else {
+      costSec.style.display = '';
+      document.getElementById('calc-cost').textContent = '재고 부족';
+      document.getElementById('calc-margin').textContent = '—';
+      document.getElementById('calc-margin-rate').textContent = '—';
+    }
+  } else {
+    document.getElementById('calc-cost-section').style.display = 'none';
+  }
+}
+
+function submitSale() {
+  const date = document.getElementById('sale-date').value;
+  const custId = document.getElementById('sale-customer').value;
+  const prodId = document.getElementById('sale-product').value;
+  const qty = parseInt(document.getElementById('sale-qty').value);
+  const price = parseFloat(document.getElementById('sale-price').value);
+  const payment = document.getElementById('sale-payment').value;
+  const memo = document.getElementById('sale-memo').value.trim();
+
+  if (!date || !custId || !prodId || !qty || !price) { toast(t('msg_select_all'),'error'); return; }
+
+  const stock = getTotalStock(prodId);
+  if (stock < qty) { toast(t('msg_no_stock'),'error'); return; }
+
+  const commPerUnit = getCommission(custId, prodId);
+
+  // FIFO deduct batches
+  const batches = getFIFOBatches(prodId);
+  const updates = {};
+  let remaining = qty;
+  const batchesUsed = [];
+
+  for (const [bid, b] of batches) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, b.remaining);
+    updates['imports/' + bid + '/remaining'] = b.remaining - take;
+    batchesUsed.push({ batchId: bid, qty: take });
+    remaining -= take;
+  }
+
+  // Save sale
+  const saleId = uid();
+  updates['sales/' + saleId] = {
+    date, customerId: custId, productId: prodId,
+    qty, unitPrice: price,
+    commissionPerUnit: commPerUnit,
+    netPricePerUnit: price - commPerUnit,
+    paymentMethod: payment,
+    commissionPaid: commPerUnit === 0,
+    creditCollected: payment !== 'credit',
+    memo: memo || null,
+    batchesUsed,
+    createdAt: Date.now(),
+  };
+
+  db.ref().update(updates).then(() => {
+    toast(t('msg_sale_done'));
+    // Reset form
+    document.getElementById('sale-customer').value = '';
+    document.getElementById('sale-product').value = '';
+    document.getElementById('sale-qty').value = '';
+    document.getElementById('sale-price').value = '';
+    document.getElementById('sale-memo').value = '';
+    document.getElementById('sale-date').value = today();
+    document.getElementById('sale-referrer-info').style.display = 'none';
+    document.getElementById('sale-stock-info').style.display = 'none';
+    calcSale();
+  });
+}
+
+// =====================================================
+// SALES LIST
+// =====================================================
+function renderSalesList() {
+  const monthFilter = document.getElementById('sales-filter-month')?.value || '';
+  const custFilter = document.getElementById('sales-filter-customer')?.value || '';
+  const tbody = document.getElementById('sales-tbody');
+
+  let items = Object.entries(DATA.sales)
+    .sort(([,a],[,b]) => b.date?.localeCompare(a.date||''))
+    .filter(([,s]) => {
+      if (monthFilter && !s.date?.startsWith(monthFilter)) return false;
+      if (custFilter && s.customerId !== custFilter) return false;
+      return true;
+    });
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" class="table-empty">${t('empty_data')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map(([id, s]) => {
+    const gross = s.unitPrice * s.qty;
+    const comm = (s.commissionPerUnit||0) * s.qty;
+    const net = (s.unitPrice - (s.commissionPerUnit||0)) * s.qty;
+    const payBadge = s.paymentMethod==='cash'?`<span class="badge badge-green">${t('pay_cash')}</span>`
+      :s.paymentMethod==='transfer'?`<span class="badge badge-blue">${t('pay_transfer')}</span>`
+      :`<span class="badge ${s.creditCollected?'badge-gray':'badge-yellow'}">${s.creditCollected?t('status_collected'):t('pay_credit')}</span>`;
+    const commBadge = s.commissionPerUnit>0
+      ? (s.commissionPaid?`<span class="badge badge-gray">${t('status_paid')}</span>`
+        :`<span class="badge badge-yellow">${t('status_unpaid')}</span>`)
+      : `<span class="badge badge-gray">없음</span>`;
+    return `<tr>
+      <td class="muted">${s.date||''}</td>
+      <td>${getCustomerName(s.customerId)}</td>
+      <td>${getProductName(s.productId)}</td>
+      <td class="mono">${fmtNum(s.qty)}</td>
+      <td class="mono">${fmtVND(s.unitPrice)}</td>
+      <td class="mono">${fmtVND(gross)}</td>
+      <td class="accent mono">${comm>0?fmtVND(comm):'—'}</td>
+      <td class="primary mono">${fmtVND(net)}</td>
+      <td>${payBadge}</td>
+      <td>${commBadge}</td>
+      <td>
+        <div class="flex-gap">
+          ${s.paymentMethod==='credit'&&!s.creditCollected?`<button class="btn btn-accent btn-xs" onclick="markCreditCollected('${id}')">${t('btn_mark_paid')}</button>`:''}
+          ${s.commissionPerUnit>0&&!s.commissionPaid?`<button class="btn btn-secondary btn-xs" onclick="payCommission('${id}')">${t('btn_pay_comm')}</button>`:''}
+          <button class="btn btn-danger btn-xs" onclick="deleteSale('${id}')">${t('btn_delete')}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function markCreditCollected(saleId) {
+  ref('sales/' + saleId + '/creditCollected').set(true).then(() => toast(t('msg_collected')));
+}
+
+function deleteSale(id) {
+  if (!confirm2(t('confirm_delete'))) return;
+  // Note: Does not restore inventory (to preserve integrity)
+  ref('sales/' + id).remove().then(() => toast(t('msg_deleted')));
+}
+
+// =====================================================
+// ANALYTICS
+// =====================================================
+function renderAnalytics() {
+  const month = document.getElementById('analytics-month')?.value || nowMonth();
+  const salesInMonth = Object.values(DATA.sales).filter(s => s.date?.startsWith(month));
+
+  let gross=0, cost=0, commission=0;
+  salesInMonth.forEach(s => {
+    gross += s.unitPrice * s.qty;
+    commission += (s.commissionPerUnit||0) * s.qty;
+    const batches = s.batchesUsed || [];
+    batches.forEach(bu => {
+      const b = DATA.imports[bu.batchId];
+      if (b) cost += (b.unitCostVND||0) * bu.qty;
+    });
+  });
+  const profit = gross - cost - commission;
+
+  document.getElementById('an-gross').textContent = fmtNum(gross);
+  document.getElementById('an-cost').textContent = fmtNum(cost);
+  document.getElementById('an-commission').textContent = fmtNum(commission);
+  document.getElementById('an-profit').textContent = fmtNum(profit);
+
+  // By customer
+  const byCustomer = {};
+  salesInMonth.forEach(s => {
+    if (!byCustomer[s.customerId]) byCustomer[s.customerId] = {cnt:0,gross:0,net:0};
+    byCustomer[s.customerId].cnt++;
+    byCustomer[s.customerId].gross += s.unitPrice * s.qty;
+    byCustomer[s.customerId].net += (s.unitPrice-(s.commissionPerUnit||0))*s.qty;
+  });
+  document.getElementById('an-customer-tbody').innerHTML = Object.entries(byCustomer)
+    .sort(([,a],[,b])=>b.gross-a.gross)
+    .map(([id,d]) => `<tr>
+      <td>${getCustomerName(id)}</td>
+      <td class="mono">${d.cnt}</td>
+      <td class="mono">${fmtVND(d.gross)}</td>
+      <td class="primary mono">${fmtVND(d.net)}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="table-empty">—</td></tr>`;
+
+  // By product
+  const byProduct = {};
+  salesInMonth.forEach(s => {
+    if (!byProduct[s.productId]) byProduct[s.productId] = {qty:0,gross:0,cost:0,net:0};
+    byProduct[s.productId].qty += s.qty;
+    byProduct[s.productId].gross += s.unitPrice*s.qty;
+    byProduct[s.productId].net += (s.unitPrice-(s.commissionPerUnit||0))*s.qty;
+    (s.batchesUsed||[]).forEach(bu => {
+      const b = DATA.imports[bu.batchId];
+      if (b) byProduct[s.productId].cost += (b.unitCostVND||0)*bu.qty;
+    });
+  });
+  document.getElementById('an-product-tbody').innerHTML = Object.entries(byProduct)
+    .sort(([,a],[,b])=>b.gross-a.gross)
+    .map(([id,d]) => {
+      const margin = d.net - d.cost;
+      const rate = d.net>0 ? (margin/d.net*100).toFixed(1)+'%' : '—';
+      return `<tr>
+        <td>${getProductName(id)}</td>
+        <td class="mono">${fmtNum(d.qty)}</td>
+        <td class="mono">${fmtVND(d.gross)}</td>
+        <td class="mono ${margin>=0?'primary':'danger'}">${rate}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="4" class="table-empty">—</td></tr>`;
+
+  // Credit
+  const credits = Object.entries(DATA.sales)
+    .filter(([,s])=>s.paymentMethod==='credit');
+  document.getElementById('an-credit-tbody').innerHTML = credits.length===0
+    ? `<tr><td colspan="5" class="table-empty">—</td></tr>`
+    : credits.sort(([,a],[,b])=>b.date?.localeCompare(a.date||''))
+      .map(([id,s])=>`<tr>
+        <td>${getCustomerName(s.customerId)}</td>
+        <td class="muted">${s.date}</td>
+        <td class="mono">${fmtVND(s.unitPrice*s.qty)}</td>
+        <td>${s.creditCollected?`<span class="badge badge-gray">${t('status_collected')}</span>`:`<span class="badge badge-yellow">${t('status_pending')}</span>`}</td>
+        <td>${!s.creditCollected?`<button class="btn btn-accent btn-xs" onclick="markCreditCollected('${id}')">${t('btn_mark_paid')}</button>`:'—'}</td>
+      </tr>`).join('');
+}
+
+// =====================================================
+// SETTINGS
+// =====================================================
+function renderSettings() {
+  const cfg = getConfig();
+  if (cfg) {
+    document.getElementById('settings-firebase-info').innerHTML =
+      Object.entries(cfg).map(([k,v]) => `<span style="color:var(--primary)">${k}</span>: ${v}`).join('<br>');
+  }
+
+  const minStockContainer = document.getElementById('min-stock-settings');
+  const products = Object.entries(DATA.products);
+  if (products.length === 0) {
+    minStockContainer.innerHTML = `<div class="table-empty">${t('empty_data')}</div>`;
+    return;
+  }
+  minStockContainer.innerHTML = products.map(([pid,p]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);">
+      <span style="font-size:13px;">${getProductName(pid)}</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input type="number" id="minstk-${pid}" value="${DATA.minStock[pid]||0}" min="0"
+          style="width:100px;text-align:right;" onchange="saveMinStock('${pid}',this.value)">
+        <span style="font-size:11px;color:var(--text-muted)">개</span>
+      </div>
+    </div>`).join('');
+}
+
+function saveMinStock(pid, val) {
+  const n = parseInt(val) || 0;
+  ref('minStock/' + pid).set(n).then(() => toast(t('msg_saved')));
+}
+
+// =====================================================
+// APP START
+// =====================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const cfg = getConfig();
+  if (cfg) {
+    initFirebase(cfg);
+  } else {
+    document.getElementById('setup-screen').style.display = 'flex';
+  }
+  setLang(lang);
+});
+</script>
+</body>
+</html>
